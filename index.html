@@ -895,6 +895,11 @@
   <div class="consult-results" id="consultResults"></div>
 </div>
 
+<!-- HISTORIAL SECTION -->
+<div class="consult-section" id="historialSection">
+  <div id="historialContent"></div>
+</div>
+
 <!-- API KEY MODAL -->
 <div class="modal-overlay" id="apiKeyModal">
   <div class="modal filter-modal">
@@ -927,9 +932,9 @@
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Consultar
   </div>
-  <div class="nav-item" id="navRefresh">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-    Actualizar
+  <div class="nav-item" id="navHistorial">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+    Historial
   </div>
 </div>
 
@@ -1402,6 +1407,7 @@ function showView(view) {
   const isConsult = view === 'consult';
   const isStats = view === 'stats';
   const isEstelares = view === 'estelares';
+  const isHistorial = view === 'historial';
 
   homeElements.forEach(id => {
     const el = document.getElementById(id);
@@ -1411,12 +1417,14 @@ function showView(view) {
   document.getElementById('consultSection').classList.toggle('active', isConsult);
   document.getElementById('statsSection').classList.toggle('active', isStats);
   document.getElementById('estelaresSection').classList.toggle('active', isEstelares);
+  document.getElementById('historialSection').classList.toggle('active', isHistorial);
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (isHome) document.getElementById('navHome').classList.add('active');
   if (isStats) document.getElementById('navStats').classList.add('active');
   if (isConsult) document.getElementById('navConsult').classList.add('active');
   if (isEstelares) document.getElementById('navEstelares').classList.add('active');
+  if (isHistorial) document.getElementById('navHistorial').classList.add('active');
 }
 
 function renderStats() {
@@ -1716,7 +1724,7 @@ ${JSON.stringify(candidatas)}`;
                 <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
                 <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
                 <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
-                <td style="padding:12px 10px;font-size:12px;color:var(--gray-light);line-height:1.6;min-width:200px;border-left:1px solid rgba(52,152,219,0.15)">
+                <td class="td-resumen" style="padding:12px 10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
                   <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
                   ${m.razon}
                 </td>
@@ -1730,6 +1738,9 @@ ${JSON.stringify(candidatas)}`;
           </tbody>
         </table>
       </div>`;
+
+    // Guardar en historial
+    saveConsulta(caso, matches);
 
   } catch(e) {
     if (e && e.type === 'authentication_error') {
@@ -1746,7 +1757,138 @@ ${JSON.stringify(candidatas)}`;
 }
 
 // NAV
-document.getElementById('navRefresh').addEventListener('click', loadData);
+document.getElementById('navHistorial').addEventListener('click', () => { showView('historial'); renderHistorial(); });
+
+// HISTORIAL
+function escapeHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function saveConsulta(descripcion, matches) {
+  const consultas = JSON.parse(localStorage.getItem('rors_consultas') || '[]');
+  const now = new Date();
+  const fecha = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const resultados = matches.map(m => {
+    const d = allData[m.i];
+    if (!d) return null;
+    return {
+      relevancia: m.relevancia,
+      razon: m.razon,
+      nombre_archivo: d.nombre_archivo,
+      tipo_asunto: d.tipo_asunto,
+      numero_expediente: d.numero_expediente,
+      fecha_publicacion: d.fecha_publicacion,
+      sentido_fallo: d.sentido_fallo,
+      tribunal: d.tribunal,
+      circuito: d.circuito,
+      partes: d.partes,
+      articulos_clave: d.articulos_clave,
+      resumen: d.resumen,
+      url_drive: d.url_drive,
+      editor: d.editor
+    };
+  }).filter(Boolean);
+  consultas.unshift({ id: Date.now(), fecha, descripcion, resultados });
+  localStorage.setItem('rors_consultas', JSON.stringify(consultas));
+}
+
+function borrarConsulta(id) {
+  let consultas = JSON.parse(localStorage.getItem('rors_consultas') || '[]');
+  consultas = consultas.filter(c => c.id !== id);
+  localStorage.setItem('rors_consultas', JSON.stringify(consultas));
+  renderHistorial();
+}
+
+function renderHistorial() {
+  const consultas = JSON.parse(localStorage.getItem('rors_consultas') || '[]');
+  const el = document.getElementById('historialContent');
+
+  if (!consultas.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:16px">🕐</div><div style="font-size:16px;color:var(--gray-light);margin-bottom:8px">Sin consultas aún</div><div style="font-size:13px">Cuando uses Consultar, tus búsquedas aparecerán aquí guardadas.</div></div>';
+    return;
+  }
+
+  const falloLabels = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' };
+
+  let html = `<div style="color:var(--gray);font-size:12px;margin-bottom:14px;padding:0 2px">${consultas.length} consulta${consultas.length !== 1 ? 's' : ''} guardada${consultas.length !== 1 ? 's' : ''}</div>`;
+
+  consultas.forEach((c, ci) => {
+    html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px">${c.fecha} &bull; ${c.resultados.length} resultado${c.resultados.length !== 1 ? 's' : ''}</div>
+          <div style="font-size:13px;color:var(--gold);font-weight:600;line-height:1.5">${escapeHtml(c.descripcion)}</div>
+        </div>
+        <button onclick="borrarConsulta(${c.id})" style="background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;line-height:1" title="Eliminar">✕</button>
+      </div>`;
+
+    if (c.resultados.length > 0) {
+      html += `<div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:900px">
+          <thead>
+            <tr style="background:rgba(52,152,219,0.06);border-bottom:1px solid rgba(52,152,219,0.2)">
+              <th style="width:3px;padding:0"></th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Descripción de Consulta</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Relevancia</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tipo</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Expediente</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fecha</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fallo</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tribunal</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Circuito</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Autoridad Responsable</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Artículos Clave</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Resumen</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Por qué aplica</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Archivo</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Editor</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:center">PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${c.resultados.map(r => {
+              const cls = getFalloClass(r.sentido_fallo);
+              const isAlta = r.relevancia === 'Alta';
+              const articulos = (r.articulos_clave || '').split('\n').filter(Boolean)
+                .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
+              return `<tr style="background:rgba(52,152,219,0.02);border-bottom:1px solid rgba(52,152,219,0.06);vertical-align:top">
+                <td style="width:3px;padding:0"><div style="width:3px;min-height:40px;border-radius:2px;background:${isAlta ? '#3498DB' : '#888'}"></div></td>
+                <td class="td-resumen" style="padding:10px;min-width:200px;max-width:260px;text-align:justify;font-size:11px;color:var(--gray)">
+                  <div class="resumen-text">${escapeHtml(c.descripcion)}</div>
+                  <button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button>
+                </td>
+                <td style="padding:10px;white-space:nowrap">
+                  <span class="relevancia-badge ${isAlta ? 'relevancia-alta' : 'relevancia-media'}">${r.relevancia}</span>
+                </td>
+                <td class="td-tipo" style="padding:10px">${r.tipo_asunto || '—'}</td>
+                <td class="td-exp" style="padding:10px">${r.numero_expediente || '—'}</td>
+                <td class="td-fecha" style="padding:10px">${r.fecha_publicacion || '—'}</td>
+                <td style="padding:10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${r.sentido_fallo || ''}</span></td>
+                <td class="td-tribunal" style="padding:10px">${r.tribunal || '—'}</td>
+                <td style="padding:10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${r.circuito || '—'}</td>
+                <td class="td-partes" style="padding:10px">${getAutoridad(r.partes)}</td>
+                <td class="td-articulos" style="padding:10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
+                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${r.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td class="td-resumen" style="padding:10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
+                  <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
+                  ${r.razon}
+                </td>
+                <td class="td-editor" style="padding:10px">${r.nombre_archivo || '—'}</td>
+                <td class="td-editor" style="padding:10px">${r.editor || '—'}</td>
+                <td style="padding:10px;text-align:center;white-space:nowrap">
+                  ${r.url_drive ? `<a href="${r.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    }
+    html += `</div>`;
+  });
+
+  el.innerHTML = html;
+}
 
 // SERVICE WORKER
 if ('serviceWorker' in navigator) {
