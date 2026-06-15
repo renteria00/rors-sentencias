@@ -1037,6 +1037,48 @@ let allData = [];
 let revisadas = new Set(JSON.parse(localStorage.getItem('rors_revisadas') || '[]'));
 let estelares = new Set(JSON.parse(localStorage.getItem('rors_estelares') || '[]'));
 let temas = JSON.parse(localStorage.getItem('rors_temas') || '{}');
+
+const WORKER_URL = 'https://rors-proxy.renteriafacturas.workers.dev';
+
+async function syncToCloud() {
+  try {
+    const data = {
+      temas,
+      estelares: [...estelares],
+      revisadas: [...revisadas],
+      consultas: JSON.parse(localStorage.getItem('rors_consultas') || '[]')
+    };
+    await fetch(WORKER_URL + '/sync', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) { /* sin conexión, no pasa nada */ }
+}
+
+async function syncFromCloud() {
+  try {
+    const r = await fetch(WORKER_URL + '/sync');
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.temas && typeof data.temas === 'object') {
+      temas = data.temas;
+      localStorage.setItem('rors_temas', JSON.stringify(temas));
+    }
+    if (Array.isArray(data.estelares)) {
+      estelares = new Set(data.estelares);
+      localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+    }
+    if (Array.isArray(data.revisadas)) {
+      revisadas = new Set(data.revisadas);
+      localStorage.setItem('rors_revisadas', JSON.stringify([...revisadas]));
+    }
+    if (Array.isArray(data.consultas)) {
+      localStorage.setItem('rors_consultas', JSON.stringify(data.consultas));
+    }
+    render();
+  } catch(e) { /* sin conexión */ }
+}
 let activeFilter = 'all';
 let advancedFilters = { tipo: [], tribunal: [], editor: [] };
 let searchQuery = '';
@@ -1114,6 +1156,7 @@ async function loadData() {
   updateStats();
   buildFilterOptions();
   render();
+  syncFromCloud();
 }
 
 // STATS
@@ -1315,6 +1358,7 @@ function toggleEstelar(btn) {
     tr.classList.add('estelar');
   }
   localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+  syncToCloud();
 }
 
 function renderEstelares() {
@@ -1387,6 +1431,7 @@ function renderEstelares() {
 function quitarEstelar(id) {
   estelares.delete(id);
   localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+  syncToCloud();
   // Update star button in main table if visible
   const btn = document.querySelector(`.star-btn[data-id="${id}"]`);
   if (btn) { btn.classList.remove('starred'); btn.closest('tr').classList.remove('estelar'); }
@@ -1407,6 +1452,7 @@ function toggleRevisada(btn) {
     tr.classList.add('revisada');
   }
   localStorage.setItem('rors_revisadas', JSON.stringify([...revisadas]));
+  syncToCloud();
 }
 
 // SORT HEADERS
@@ -1598,6 +1644,7 @@ function saveTema(input) {
     input.classList.remove('captured');
   }
   localStorage.setItem('rors_temas', JSON.stringify(temas));
+  syncToCloud();
 }
 
 // RENDER TEMAS
@@ -1968,12 +2015,14 @@ function saveConsulta(descripcion, matches) {
   }).filter(Boolean);
   consultas.unshift({ id: Date.now(), fecha, descripcion, resultados });
   localStorage.setItem('rors_consultas', JSON.stringify(consultas));
+  syncToCloud();
 }
 
 function borrarConsulta(id) {
   let consultas = JSON.parse(localStorage.getItem('rors_consultas') || '[]');
   consultas = consultas.filter(c => c.id !== id);
   localStorage.setItem('rors_consultas', JSON.stringify(consultas));
+  syncToCloud();
   renderHistorial();
 }
 
