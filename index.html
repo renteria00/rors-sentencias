@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RORS Sentencias</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RORS">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --dark: #141414;
+    --card: #1A1A1A;
+    --border: #2A2A2A;
+    --gold: #C9A84C;
+    --gold-light: #FFD700;
+    --gold-dark: #8B6914;
+    --white: #FFFFFF;
+    --gray: #888888;
+    --gray-light: #CCCCCC;
+    --concede: #2ECC71;
+    --niega: #E74C3C;
+    --sobresee: #E67E22;
+    --other: #3498DB;
+  }
+
+  /* LOGIN */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: #0A0A0A;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 0;
+  }
+  .login-box {
+    width: 320px;
+    background: #141414;
+    border: 1px solid #2A2A2A;
+    border-radius: 20px;
+    padding: 36px 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+  .login-logo {
+    width: 56px; height: 56px;
+    background: #0A0A0A;
+    border: 1.5px solid #C9A84C;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #C9A84C; letter-spacing: 2px;
+  }
+  .login-title {
+    font-size: 22px; font-weight: 800;
+    background: linear-gradient(135deg, #FFD700, #C9A84C, #8B6914);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: 3px;
+  }
+  .login-sub { font-size: 12px; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-top: -14px; }
+  .login-input {
+    width: 100%;
+    background: #0A0A0A;
+    border: 1px solid #2A2A2A;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 3px;
+    transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: #C9A84C; }
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #FFD700, #C9A84C);
+    border: none; border-radius: 12px;
+    padding: 14px; font-size: 15px; font-weight: 700;
+    color: #000; cursor: pointer;
+  }
+  .login-error {
+    font-size: 12px; color: #E74C3C;
+    display: none; text-align: center;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(180deg, #111 0%, #0A0A0A 100%);
+    border-bottom: 1px solid #2A2A2A;
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--black);
+    border: 1.5px solid var(--gold);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-text-rors {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+
+  .logo-text-sub {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .update-badge {
+    font-size: 11px;
+    color: var(--gray);
+    text-align: right;
+  }
+
+  .update-badge span {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 16px 11px 42px;
+    color: var(--white);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-wrap input::placeholder { color: var(--gray); }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+    font-size: 16px;
+  }
+
+  /* STATS */
+  .stats-bar {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 130px;
+    max-width: 180px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .stat-card.gold-border { border-color: var(--gold); }
+
+  .stat-number {
+    font-size: 30px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--gray-light);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  /* FILTERS */
+  .filters {
+    padding: 0 20px 14px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    color: var(--gray-light);
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .filter-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+    font-weight: 700;
+  }
+
+  .tribunal-select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    color: var(--gray-light);
+    font-size: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px;
+    transition: border-color 0.2s;
+  }
+
+  .tribunal-select.active {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .tribunal-select option {
+    background: #1A1A1A;
+    color: #FFF;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    padding: 0 20px 10px;
+    font-size: 12px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    padding: 0 12px;
+    overflow-x: auto;
+  }
+
+  table.sent-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 700px;
+  }
+
+  table.sent-table thead tr {
+    background: #111;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  table.sent-table th {
+    padding: 10px 10px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background: #111;
+  }
+
+  table.sent-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  table.sent-table tbody tr:hover { background: rgba(201,168,76,0.04); }
+
+  table.sent-table td {
+    padding: 12px 10px;
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--gray-light);
+  }
+
+  .td-tipo {
+    color: var(--gold);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .td-exp {
+    font-weight: 700;
+    color: var(--white);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .td-fecha { color: var(--gray); white-space: nowrap; font-size: 11px; }
+
+  .fallo-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .fallo-badge.concede { background: rgba(46,204,113,0.15); color: var(--concede); border: 1px solid rgba(46,204,113,0.3); }
+  .fallo-badge.niega { background: rgba(231,76,60,0.15); color: var(--niega); border: 1px solid rgba(231,76,60,0.3); }
+  .fallo-badge.sobresee { background: rgba(230,126,34,0.15); color: var(--sobresee); border: 1px solid rgba(230,126,34,0.3); }
+  .fallo-badge.other { background: rgba(52,152,219,0.15); color: var(--other); border: 1px solid rgba(52,152,219,0.3); }
+
+  .td-left-bar {
+    width: 3px;
+    padding: 0;
+  }
+  .td-left-bar div {
+    width: 3px;
+    height: 100%;
+    min-height: 40px;
+    border-radius: 2px;
+  }
+  .td-left-bar div.concede { background: var(--concede); }
+  .td-left-bar div.niega { background: var(--niega); }
+  .td-left-bar div.sobresee { background: var(--sobresee); }
+  .td-left-bar div.other { background: var(--other); }
+
+  .td-tribunal { font-size: 12px; min-width: 140px; }
+  .td-partes { font-size: 11px; color: var(--gray); min-width: 160px; }
+  .td-articulos { min-width: 150px; }
+  .td-resumen { min-width: 220px; font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+
+  .art-tag {
+    display: inline-block;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 2px 2px 2px 0;
+    font-size: 10px;
+    color: var(--gold);
+  }
+
+  .td-editor { color: var(--gray); font-size: 11px; white-space: nowrap; }
+
+  /* ESTELAR */
+  tr.estelar { background: rgba(201,168,76,0.04); }
+
+  .star-btn {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin: auto;
+    color: transparent;
+  }
+  .star-btn.starred {
+    background: rgba(255,215,0,0.12);
+    border-color: var(--gold-light);
+    color: var(--gold-light);
+  }
+  .star-btn:hover { border-color: var(--gold-light); }
+
+  /* REVISADA */
+  tr.revisada td { opacity: 0.35; }
+  tr.revisada { background: rgba(46,204,113,0.03); }
+
+  .check-btn {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin: auto;
+    color: transparent;
+  }
+  .check-btn.checked {
+    background: rgba(46,204,113,0.15);
+    border-color: #2ECC71;
+    color: #2ECC71;
+  }
+  .check-btn:hover { border-color: #2ECC71; }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray);
+  }
+
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-size: 18px; color: var(--gray-light); margin-bottom: 8px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.show { display: flex; align-items: flex-start; justify-content: center; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+  }
+
+  .modal-close {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  /* FILTER MODAL */
+  .filter-modal { max-width: 400px; }
+  .filter-group { margin-bottom: 18px; }
+  .filter-group-label { font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filter-option {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--gray-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-option.selected { background: var(--gold); border-color: var(--gold); color: var(--black); font-weight: 700; }
+
+  .btn-apply {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .btn-clear {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    color: var(--gray);
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+    z-index: 100;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    color: var(--gray);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .nav-item.active { color: var(--gold); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* SORTABLE HEADERS */
+  table.sent-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+  table.sent-table th.sortable:hover { color: var(--gold-light); }
+  table.sent-table th.sort-active { color: var(--gold-light); }
+  .sort-ind { margin-left: 4px; opacity: 0.4; font-size: 9px; }
+  th.sort-active .sort-ind { opacity: 1; }
+
+  /* CONSULT VIEW */
+  .consult-section { padding: 16px 20px; display: none; }
+  .consult-section.active { display: block; }
+
+  .consult-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .consult-label {
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+
+  .consult-textarea {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    color: var(--white);
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 140px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .consult-textarea:focus { border-color: var(--gold); }
+  .consult-textarea::placeholder { color: var(--gray); }
+
+  .btn-consultar {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+    cursor: pointer;
+    margin-top: 12px;
+    transition: opacity 0.2s;
+  }
+  .btn-consultar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .consult-results { margin-top: 8px; }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .relevancia-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .relevancia-alta { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .relevancia-media { background: rgba(136,136,136,0.15); color: var(--gray-light); }
+
+  .result-exp { font-weight: 700; color: var(--white); font-size: 14px; margin-bottom: 3px; }
+  .result-meta { font-size: 11px; color: var(--gray); margin-bottom: 10px; }
+
+  .result-razon {
+    background: rgba(201,168,76,0.05);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--gray-light);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .result-razon-label {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .result-footer { display: flex; gap: 10px; align-items: center; }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.2s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+  }
+
+  /* API KEY MODAL */
+  .apikey-info {
+    font-size: 13px;
+    color: var(--gray-light);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .apikey-input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--white);
+    font-size: 14px;
+    outline: none;
+    font-family: monospace;
+    margin-bottom: 12px;
+  }
+  .apikey-input:focus { border-color: var(--gold); }
+
+  /* SORTABLE HEADERS */
+  table.sent-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+  table.sent-table th.sortable:hover { color: var(--gold-light); }
+  table.sent-table th.sort-active { color: var(--gold-light); }
+  .sort-ind { margin-left: 4px; opacity: 0.4; font-size: 9px; }
+  th.sort-active .sort-ind { opacity: 1; }
+
+  /* RESPONSIVE */
+  @media (min-width: 600px) {
+    .cards { padding: 0 20px; }
+    header { padding: 20px 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">RORS</div>
+    <div>
+      <div class="login-title">RORS</div>
+      <div class="login-sub">Sentencias</div>
+    </div>
+    <input class="login-input" type="password" id="loginInput" placeholder="••••••••••"
+      onkeydown="if(event.key==='Enter') checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Ingresar</button>
+    <div class="login-error" id="loginError">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 40 40" width="28" height="28">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#8B6914"/>
+            </linearGradient>
+          </defs>
+          <text x="20" y="28" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="url(#g1)" text-anchor="middle" letter-spacing="1">RORS</text>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text-rors">RORS</div>
+        <div class="logo-text-sub">Sentencias</div>
+      </div>
+    </div>
+    <div class="update-badge">
+      Actualizado<br><span id="lastUpdate">—</span>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Buscar expediente, partes, argumentos...">
+  </div>
+</header>
+
+<!-- STATS -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-card gold-border">
+    <div class="stat-number" id="statTotal">0</div>
+    <div class="stat-label">Total</div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters" id="filterBar">
+  <button class="filter-btn active" data-filter="all">Todos</button>
+  <button class="filter-btn" data-filter="concede">Concedidos</button>
+  <button class="filter-btn" data-filter="niega">Negados</button>
+  <button class="filter-btn" data-filter="sobresee">Sobreseídos</button>
+  <select class="tribunal-select" id="circuitoSelect">
+    <option value="">⚖️ Todos los circuitos</option>
+    <option>Primer Circuito</option>
+    <option>Segundo Circuito</option>
+    <option>Tercer Circuito</option>
+    <option>Cuarto Circuito</option>
+    <option>Quinto Circuito</option>
+    <option>Sexto Circuito</option>
+    <option>Séptimo Circuito</option>
+    <option>Octavo Circuito</option>
+    <option>Noveno Circuito</option>
+    <option>Décimo Circuito</option>
+    <option>Décimo Primer Circuito</option>
+    <option>Décimo Segundo Circuito</option>
+    <option>Décimo Tercer Circuito</option>
+    <option>Décimo Cuarto Circuito</option>
+    <option>Décimo Quinto Circuito</option>
+    <option>Décimo Sexto Circuito</option>
+    <option>Décimo Séptimo Circuito</option>
+    <option>Décimo Octavo Circuito</option>
+    <option>Décimo Noveno Circuito</option>
+    <option>Vigésimo Circuito</option>
+    <option>Vigésimo Primer Circuito</option>
+    <option>Vigésimo Segundo Circuito</option>
+    <option>Vigésimo Tercer Circuito</option>
+    <option>Vigésimo Cuarto Circuito</option>
+    <option>Vigésimo Quinto Circuito</option>
+    <option>Vigésimo Sexto Circuito</option>
+    <option>Vigésimo Séptimo Circuito</option>
+    <option>Vigésimo Octavo Circuito</option>
+    <option>Vigésimo Noveno Circuito</option>
+    <option>Trigésimo Circuito</option>
+    <option>Trigésimo Primer Circuito</option>
+    <option>Trigésimo Segundo Circuito</option>
+  </select>
+  <button class="filter-btn" id="btnMoreFilters">⚙ Filtros</button>
+</div>
+
+<div class="section-title" id="resultsLabel">Cargando...</div>
+
+<!-- TABLE -->
+<div class="table-wrap" id="tableWrap" style="display:none">
+  <table class="sent-table">
+    <thead>
+      <tr>
+        <th style="width:3px;padding:0"></th>
+        <th class="sortable" data-sort="tipo_asunto">Tipo<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="numero_expediente">Expediente<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="fecha_publicacion">Fecha<span class="sort-ind">↓</span></th>
+        <th class="sortable" data-sort="sentido_fallo">Fallo<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="tribunal">Tribunal<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="circuito">Circuito<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="partes">Partes<span class="sort-ind">↕</span></th>
+        <th>Artículos Clave</th>
+        <th>Resumen</th>
+        <th class="sortable" data-sort="nombre_archivo">Archivo<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="editor">Editor<span class="sort-ind">↕</span></th>
+        <th style="text-align:center">PDF</th>
+        <th style="text-align:center">★</th>
+        <th style="text-align:center">✓</th>
+      </tr>
+    </thead>
+    <tbody id="cardList"></tbody>
+  </table>
+</div>
+
+<!-- EMPTY STATE -->
+<div class="empty" id="emptyState" style="display:none">
+  <div class="empty-icon">⚖️</div>
+  <div class="empty-title">Sin resultados</div>
+  <div>No se encontraron sentencias con ese criterio.</div>
+</div>
+
+<!-- FILTER MODAL -->
+<div class="modal-overlay" id="filterModal">
+  <div class="modal filter-modal">
+    <button class="modal-close" id="closeFilterModal">✕</button>
+    <div class="modal-title">Filtros</div>
+    <br>
+    <div class="filter-group">
+      <div class="filter-group-label">Tipo de Asunto</div>
+      <div class="filter-options" id="filterTipo"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Tribunal</div>
+      <div class="filter-options" id="filterTribunal"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Editor</div>
+      <div class="filter-options" id="filterEditor"></div>
+    </div>
+    <button class="btn-apply" id="applyFilters">Aplicar filtros</button>
+    <button class="btn-clear" id="clearFilters">Limpiar filtros</button>
+  </div>
+</div>
+
+<!-- ESTELARES SECTION -->
+<div class="consult-section" id="estelaresSection">
+  <div id="estelaresContent"></div>
+</div>
+
+<!-- ESTADÍSTICAS SECTION -->
+<div class="consult-section" id="statsSection">
+  <div id="statsContent"></div>
+</div>
+
+<!-- CONSULTAR SECTION -->
+<div class="consult-section" id="consultSection">
+  <div class="consult-card">
+    <div class="consult-label">Describe tu caso o situación</div>
+    <textarea class="consult-textarea" id="casoInput"
+      placeholder="Ej: Mi cliente recibió una resolución del SAT rechazando la deducción de gastos por concepto de servicios profesionales. La autoridad argumenta que los CFDI no acreditan la materialidad de los servicios. ¿Qué sentencias podrían apoyar nuestra defensa?"></textarea>
+    <button class="btn-consultar" id="btnConsultar" onclick="consultarCaso()">Consultar sentencias</button>
+  </div>
+  <div class="consult-results" id="consultResults"></div>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="apiKeyModal">
+  <div class="modal filter-modal">
+    <button class="modal-close" id="closeApiModal">✕</button>
+    <div class="modal-title">API Key de Anthropic</div>
+    <br>
+    <p class="apikey-info">Para usar el buscador inteligente necesitas una API key de Anthropic. Se guarda solo en tu dispositivo y nunca se comparte.</p>
+    <input class="apikey-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <button class="btn-apply" id="saveApiKey">Guardar y consultar</button>
+    <br><br>
+    <p style="font-size:11px;color:var(--gray);text-align:center">Obtén tu API key en <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">console.anthropic.com</a></p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="navHome">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Inicio
+  </div>
+  <div class="nav-item" id="navStats">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
+    Estadísticas
+  </div>
+  <div class="nav-item" id="navEstelares">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Estelares
+  </div>
+  <div class="nav-item" id="navConsult">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Consultar
+  </div>
+  <div class="nav-item" id="navRefresh">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+    Actualizar
+  </div>
+</div>
+
+<script>
+// AUTH
+const PWD_HASH = '7a3f2e1b9c4d8f6a0e5b2c7d1f4a8e3b9c6d2f5a1e8b4c7d0f3a6e9b2c5d8f1a';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkLogin() {
+  const val = document.getElementById('loginInput').value;
+  const hash = await sha256(val);
+  const correct = await sha256('Sentencias00');
+  if (hash === correct) {
+    sessionStorage.setItem('rors_auth', '1');
+    document.getElementById('loginOverlay').style.display = 'none';
+    loadData();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+  }
+}
+
+function checkAuth() {
+  if (sessionStorage.getItem('rors_auth') !== '1') {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  } else {
+    document.getElementById('loginOverlay').style.display = 'none';
+    loadData();
+  }
+}
+
+let allData = [];
+let revisadas = new Set(JSON.parse(localStorage.getItem('rors_revisadas') || '[]'));
+let estelares = new Set(JSON.parse(localStorage.getItem('rors_estelares') || '[]'));
+let activeFilter = 'all';
+let advancedFilters = { tipo: [], tribunal: [], editor: [] };
+let searchQuery = '';
+let circuitoFilter = '';
+let sortKey = 'fecha_publicacion';
+let sortDir = 'desc';
+
+function parseDate(str) {
+  if (!str) return 0;
+  const parts = str.split('-');
+  if (parts.length !== 3) return 0;
+  return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+}
+
+function getSortedData() {
+  const data = getFilteredData();
+  return data.sort((a, b) => {
+    let va = a[sortKey] || '';
+    let vb = b[sortKey] || '';
+    if (sortKey === 'fecha_publicacion') {
+      va = parseDate(va);
+      vb = parseDate(vb);
+      return sortDir === 'asc' ? va - vb : vb - va;
+    }
+    va = va.toString().toLowerCase();
+    vb = vb.toString().toLowerCase();
+    if (va < vb) return sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function updateSortIndicators() {
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sort-active');
+    const ind = th.querySelector('.sort-ind');
+    if (ind) ind.textContent = '↕';
+  });
+  const active = document.querySelector(`th[data-sort="${sortKey}"]`);
+  if (active) {
+    active.classList.add('sort-active');
+    const ind = active.querySelector('.sort-ind');
+    if (ind) ind.textContent = sortDir === 'asc' ? '↑' : '↓';
+  }
+}
+
+// FALLO CLASSIFICATION
+function getFalloClass(fallo) {
+  if (!fallo) return 'other';
+  const f = fallo.toUpperCase();
+  if (f.includes('CONCEDE') || f.includes('AMPARA')) return 'concede';
+  if (f.includes('NIEGA')) return 'niega';
+  if (f.includes('SOBRESEE')) return 'sobresee';
+  return 'other';
+}
+
+function getFalloBadge(fallo) {
+  const cls = getFalloClass(fallo);
+  const labels = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' };
+  return `<span class="fallo-badge ${cls}">${labels[cls]}</span>`;
+}
+
+// LOAD DATA
+async function loadData() {
+  try {
+    const r = await fetch('./data.json?t=' + Date.now());
+    allData = await r.json();
+    if (allData.length > 0) {
+      const dates = allData.map(d => d.fecha_publicacion).filter(Boolean).sort();
+      document.getElementById('lastUpdate').textContent = dates[dates.length - 1] || '—';
+    }
+  } catch(e) {
+    allData = [];
+  }
+  updateStats();
+  buildFilterOptions();
+  render();
+}
+
+// STATS
+function updateStats() {
+  const data = getFilteredData();
+  document.getElementById('statTotal').textContent = data.length;
+
+  // Count by tipo de asunto from ALL data (not filtered) for context
+  const tipoCount = {};
+  allData.forEach(d => {
+    const t = d.tipo_asunto || 'Otro';
+    tipoCount[t] = (tipoCount[t] || 0) + 1;
+  });
+
+  // Count by editor
+  const editorCount = {};
+  allData.forEach(d => {
+    const e = d.editor;
+    if (e && e !== 'N/D') editorCount[e] = (editorCount[e] || 0) + 1;
+  });
+
+  const bar = document.getElementById('statsBar');
+  [...bar.querySelectorAll('.stat-tipo, .stat-divider, .stat-editor')].forEach(el => el.remove());
+
+  // Tipo cards
+  Object.entries(tipoCount)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([tipo, count]) => {
+      const card = document.createElement('div');
+      card.className = 'stat-card stat-tipo';
+      card.innerHTML = `<div class="stat-number">${count}</div><div class="stat-label">${tipo}</div>`;
+      bar.appendChild(card);
+    });
+
+  // Divider
+  if (Object.keys(editorCount).length > 0) {
+    const div = document.createElement('div');
+    div.className = 'stat-divider';
+    div.style.cssText = 'width:1px;background:#2A2A2A;flex-shrink:0;align-self:stretch;margin:6px 0;';
+    bar.appendChild(div);
+
+    // Editor cards
+    Object.entries(editorCount)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([editor, count]) => {
+        const card = document.createElement('div');
+        card.className = 'stat-card stat-editor';
+        card.style.borderColor = '#C9A84C44';
+        card.innerHTML = `<div class="stat-number" style="font-size:22px">${count}</div><div class="stat-label" style="color:var(--gold)">${editor}</div>`;
+        bar.appendChild(card);
+      });
+  }
+}
+
+// FILTER OPTIONS
+function buildFilterOptions() {
+  const tipos = [...new Set(allData.map(d => d.tipo_asunto).filter(Boolean))];
+  const tribunales = [...new Set(allData.map(d => d.tribunal).filter(Boolean))];
+  const editors = [...new Set(allData.map(d => d.editor).filter(Boolean))];
+
+  renderFilterOptions('filterTipo', tipos, 'tipo');
+  renderFilterOptions('filterTribunal', tribunales, 'tribunal');
+  renderFilterOptions('filterEditor', editors, 'editor');
+}
+
+function renderFilterOptions(containerId, options, key) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = options.map(o => `
+    <div class="filter-option ${advancedFilters[key].includes(o) ? 'selected' : ''}" data-key="${key}" data-val="${o}">${o}</div>
+  `).join('');
+  el.querySelectorAll('.filter-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val, key2 = btn.dataset.key;
+      const idx = advancedFilters[key2].indexOf(val);
+      if (idx > -1) advancedFilters[key2].splice(idx, 1);
+      else advancedFilters[key2].push(val);
+      btn.classList.toggle('selected');
+    });
+  });
+}
+
+// GET FILTERED DATA
+function getFilteredData() {
+  return allData.filter(d => {
+    const fCls = getFalloClass(d.sentido_fallo);
+    if (activeFilter !== 'all' && fCls !== activeFilter) return false;
+    if (circuitoFilter && d.circuito !== circuitoFilter) return false;
+    if (advancedFilters.tipo.length && !advancedFilters.tipo.includes(d.tipo_asunto)) return false;
+    if (advancedFilters.editor.length && !advancedFilters.editor.includes(d.editor)) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const text = [d.numero_expediente, d.partes, d.resumen, d.tribunal, d.tipo_asunto, d.articulos_clave].join(' ').toLowerCase();
+      if (!text.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// RENDER TABLE
+function render() {
+  updateSortIndicators();
+  const data = getSortedData();
+  const tbody = document.getElementById('cardList');
+  const tableWrap = document.getElementById('tableWrap');
+  const empty = document.getElementById('emptyState');
+  const label = document.getElementById('resultsLabel');
+
+  updateStats();
+
+  if (allData.length === 0) {
+    label.textContent = 'Sin sentencias aún';
+    tbody.innerHTML = '';
+    tableWrap.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('.empty-title').textContent = 'Sin sentencias aún';
+    empty.querySelector('div:last-child').textContent = 'La tabla se llenará automáticamente cada jueves.';
+    return;
+  }
+
+  label.textContent = `${data.length} sentencia${data.length !== 1 ? 's' : ''}`;
+  empty.style.display = data.length === 0 ? 'block' : 'none';
+  tableWrap.style.display = data.length === 0 ? 'none' : 'block';
+
+  if (data.length === 0) { tbody.innerHTML = ''; return; }
+
+  tbody.innerHTML = data.map(d => {
+    const cls = getFalloClass(d.sentido_fallo);
+    const falloLabel = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' }[cls];
+    const articulos = (d.articulos_clave || '').split('\n').filter(Boolean)
+      .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
+
+    const esEstelar = estelares.has(d.nombre_archivo);
+    const esRevisada = revisadas.has(d.nombre_archivo);
+    return `<tr class="${esRevisada ? 'revisada' : ''} ${esEstelar ? 'estelar' : ''}">
+      <td class="td-left-bar"><div class="${cls}"></div></td>
+      <td class="td-tipo">${d.tipo_asunto || '—'}</td>
+      <td class="td-exp">${d.numero_expediente || '—'}</td>
+      <td class="td-fecha">${d.fecha_publicacion || '—'}</td>
+      <td><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
+      <td class="td-tribunal">${d.tribunal || '—'}</td>
+      <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
+      <td class="td-partes">${d.partes || '—'}</td>
+      <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
+      <td class="td-resumen">${d.resumen || '—'}</td>
+      <td class="td-editor">${d.nombre_archivo || '—'}</td>
+      <td class="td-editor">${d.editor || '—'}</td>
+      <td style="text-align:center;white-space:nowrap">
+        ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
+      </td>
+      <td style="text-align:center">
+        <button class="star-btn ${estelares.has(d.nombre_archivo) ? 'starred' : ''}" data-id="${d.nombre_archivo}" onclick="toggleEstelar(this)">★</button>
+      </td>
+      <td style="text-align:center">
+        <button class="check-btn ${revisadas.has(d.nombre_archivo) ? 'checked' : ''}" data-id="${d.nombre_archivo}" onclick="toggleRevisada(this)">✓</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ESTELARES
+function toggleEstelar(btn) {
+  const id = btn.dataset.id;
+  const tr = btn.closest('tr');
+  if (estelares.has(id)) {
+    estelares.delete(id);
+    btn.classList.remove('starred');
+    tr.classList.remove('estelar');
+  } else {
+    estelares.add(id);
+    btn.classList.add('starred');
+    tr.classList.add('estelar');
+  }
+  localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+}
+
+function renderEstelares() {
+  const data = allData.filter(d => estelares.has(d.nombre_archivo));
+  const el = document.getElementById('estelaresContent');
+
+  if (!data.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:16px">★</div><div style="font-size:16px;color:var(--gray-light);margin-bottom:8px">Sin estelares aún</div><div style="font-size:13px">Marca una sentencia con ★ en la tabla principal para verla aquí.</div></div>';
+    return;
+  }
+
+  const falloLabels = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' };
+
+  el.innerHTML = `
+    <div style="color:var(--gray);font-size:12px;margin-bottom:10px;padding:0 2px">
+      ${data.length} sentencia${data.length !== 1 ? 's' : ''} estelar${data.length !== 1 ? 'es' : ''}
+    </div>
+    <div style="overflow-x:auto;border-radius:12px;border:1px solid rgba(201,168,76,0.3)">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
+        <thead>
+          <tr style="background:rgba(201,168,76,0.12);border-bottom:2px solid var(--gold)">
+            <th style="width:3px;padding:0"></th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tipo</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Expediente</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fecha</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tribunal</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Circuito</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Partes</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Archivo</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Editor</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">PDF</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">★</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(d => {
+            const cls = getFalloClass(d.sentido_fallo);
+            const falloLabel = falloLabels[cls];
+            const articulos = (d.articulos_clave || '').split('\n').filter(Boolean)
+              .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
+            return `<tr style="background:rgba(201,168,76,0.04);border-bottom:1px solid rgba(201,168,76,0.1)">
+              <td style="width:3px;padding:0"><div class="${cls}" style="width:3px;min-height:40px;border-radius:2px;background:var(--${cls === 'concede' ? 'concede' : cls === 'niega' ? 'niega' : cls === 'sobresee' ? 'sobresee' : 'other'})"></div></td>
+              <td class="td-tipo" style="padding:12px 10px">${d.tipo_asunto || '—'}</td>
+              <td class="td-exp" style="padding:12px 10px">${d.numero_expediente || '—'}</td>
+              <td class="td-fecha" style="padding:12px 10px">${d.fecha_publicacion || '—'}</td>
+              <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
+              <td class="td-tribunal" style="padding:12px 10px">${d.tribunal || '—'}</td>
+              <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
+              <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
+              <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
+              <td class="td-resumen" style="padding:12px 10px">${d.resumen || '—'}</td>
+              <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
+              <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
+              <td style="padding:12px 10px;text-align:center;white-space:nowrap">
+                ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
+              </td>
+              <td style="padding:12px 10px;text-align:center">
+                <button onclick="quitarEstelar('${d.nombre_archivo}')" style="width:24px;height:24px;border-radius:50%;border:1.5px solid var(--gold-light);background:rgba(255,215,0,0.12);color:var(--gold-light);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto">★</button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function quitarEstelar(id) {
+  estelares.delete(id);
+  localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+  // Update star button in main table if visible
+  const btn = document.querySelector(`.star-btn[data-id="${id}"]`);
+  if (btn) { btn.classList.remove('starred'); btn.closest('tr').classList.remove('estelar'); }
+  renderEstelares();
+}
+
+// REVISADAS
+function toggleRevisada(btn) {
+  const id = btn.dataset.id;
+  const tr = btn.closest('tr');
+  if (revisadas.has(id)) {
+    revisadas.delete(id);
+    btn.classList.remove('checked');
+    tr.classList.remove('revisada');
+  } else {
+    revisadas.add(id);
+    btn.classList.add('checked');
+    tr.classList.add('revisada');
+  }
+  localStorage.setItem('rors_revisadas', JSON.stringify([...revisadas]));
+}
+
+// SORT HEADERS
+document.querySelector('.sent-table thead').addEventListener('click', e => {
+  const th = e.target.closest('th.sortable');
+  if (!th) return;
+  const key = th.dataset.sort;
+  if (sortKey === key) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortKey = key;
+    sortDir = key === 'fecha_publicacion' ? 'desc' : 'asc';
+  }
+  render();
+});
+
+// SEARCH
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  render();
+});
+
+// TRIBUNAL SELECT
+document.getElementById('circuitoSelect').addEventListener('change', e => {
+  circuitoFilter = e.target.value;
+  e.target.className = 'tribunal-select' + (circuitoFilter ? ' active' : '');
+  render();
+});
+
+// FILTER BUTTONS
+document.getElementById('filterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn || btn.id === 'btnMoreFilters') return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.filter;
+  render();
+});
+
+// FILTER MODAL
+document.getElementById('btnMoreFilters').addEventListener('click', () => {
+  buildFilterOptions();
+  document.getElementById('filterModal').classList.add('show');
+});
+document.getElementById('closeFilterModal').addEventListener('click', () => document.getElementById('filterModal').classList.remove('show'));
+document.getElementById('applyFilters').addEventListener('click', () => {
+  document.getElementById('filterModal').classList.remove('show');
+  render();
+});
+document.getElementById('clearFilters').addEventListener('click', () => {
+  advancedFilters = { tipo: [], tribunal: [], editor: [] };
+  buildFilterOptions();
+  render();
+});
+
+// VIEW SWITCHING
+let activeView = 'home';
+const homeElements = ['statsBar', 'filterBar', 'resultsLabel', 'tableWrap', 'emptyState'];
+
+function showView(view) {
+  activeView = view;
+  const isHome = view === 'home';
+  const isConsult = view === 'consult';
+  const isStats = view === 'stats';
+  const isEstelares = view === 'estelares';
+
+  homeElements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isHome ? '' : 'none';
+  });
+
+  document.getElementById('consultSection').classList.toggle('active', isConsult);
+  document.getElementById('statsSection').classList.toggle('active', isStats);
+  document.getElementById('estelaresSection').classList.toggle('active', isEstelares);
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (isHome) document.getElementById('navHome').classList.add('active');
+  if (isStats) document.getElementById('navStats').classList.add('active');
+  if (isConsult) document.getElementById('navConsult').classList.add('active');
+  if (isEstelares) document.getElementById('navEstelares').classList.add('active');
+}
+
+function renderStats() {
+  if (!allData.length) {
+    document.getElementById('statsContent').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--gray)">Sin datos aún.</div>';
+    return;
+  }
+
+  // Build month -> editor -> count map
+  const map = {};
+  const editors = new Set();
+
+  allData.forEach(d => {
+    const fecha = d.fecha_publicacion || '';
+    const parts = fecha.split('-');
+    if (parts.length !== 3) return;
+    const mesKey = `${parts[2]}-${parts[1]}`; // YYYY-MM for sorting
+    const mesLabel = new Date(parts[2], parts[1] - 1, 1)
+      .toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+    const editor = d.editor && d.editor !== 'N/D' ? d.editor : 'Sin editor';
+
+    if (!map[mesKey]) map[mesKey] = { label: mesLabel, editors: {} };
+    map[mesKey].editors[editor] = (map[mesKey].editors[editor] || 0) + 1;
+    editors.add(editor);
+  });
+
+  const meses = Object.keys(map).sort().reverse();
+  const editoresList = [...editors].sort();
+  const colors = ['#C9A84C','#3498DB','#2ECC71','#E67E22','#9B59B6','#E74C3C'];
+
+  let html = `<div style="padding:4px 0 16px">`;
+
+  // Editor legend
+  html += `<div style="display:flex;flex-wrap:wrap;gap:8px;padding:0 4px 16px">`;
+  editoresList.forEach((e, i) => {
+    html += `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-light)">
+      <div style="width:10px;height:10px;border-radius:2px;background:${colors[i % colors.length]}"></div>${e}
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Month cards
+  meses.forEach(mesKey => {
+    const { label, editors: edMap } = map[mesKey];
+    const total = Object.values(edMap).reduce((a, b) => a + b, 0);
+    const maxVal = Math.max(...Object.values(edMap));
+
+    html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:700;color:var(--white);text-transform:capitalize">${label}</span>
+        <span style="font-size:11px;color:var(--gray)">${total} sentencia${total !== 1 ? 's' : ''}</span>
+      </div>`;
+
+    editoresList.forEach((editor, i) => {
+      const count = edMap[editor] || 0;
+      if (!count) return;
+      const pct = Math.round((count / maxVal) * 100);
+      const color = colors[i % colors.length];
+      html += `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--gray-light)">${editor}</span>
+          <span style="font-size:11px;font-weight:700;color:${color}">${count}</span>
+        </div>
+        <div style="background:#1e1e1e;border-radius:4px;height:6px;overflow:hidden">
+          <div style="background:${color};width:${pct}%;height:100%;border-radius:4px;transition:width 0.4s"></div>
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('statsContent').innerHTML = html;
+}
+
+document.getElementById('navHome').addEventListener('click', () => showView('home'));
+document.getElementById('navEstelares').addEventListener('click', () => { showView('estelares'); renderEstelares(); });
+document.getElementById('navStats').addEventListener('click', () => { showView('stats'); renderStats(); });
+document.getElementById('navConsult').addEventListener('click', () => showView('consult'));
+
+// API KEY
+let apiKey = localStorage.getItem('rors_api_key') || '';
+
+document.getElementById('closeApiModal').addEventListener('click', () => {
+  document.getElementById('apiKeyModal').classList.remove('show');
+});
+
+document.getElementById('saveApiKey').addEventListener('click', () => {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) return;
+  apiKey = key;
+  localStorage.setItem('rors_api_key', key);
+  document.getElementById('apiKeyModal').classList.remove('show');
+  consultarCaso();
+});
+
+// CONSULTAR
+async function consultarCaso() {
+  const caso = document.getElementById('casoInput').value.trim();
+  if (!caso) {
+    document.getElementById('consultResults').innerHTML =
+      '<div style="color:var(--gray);text-align:center;padding:20px">Describe tu caso para comenzar.</div>';
+    return;
+  }
+
+  if (!apiKey) {
+    document.getElementById('apiKeyInput').value = '';
+    document.getElementById('apiKeyModal').classList.add('show');
+    return;
+  }
+
+  if (allData.length === 0) {
+    document.getElementById('consultResults').innerHTML =
+      '<div style="color:var(--gray);text-align:center;padding:20px">No hay sentencias en la base de datos aún.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('btnConsultar');
+  const results = document.getElementById('consultResults');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-dots">Analizando sentencias</span>';
+  results.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;font-size:14px"><span class="loading-dots">Consultando base de datos</span></div>';
+
+  const sentenciasData = allData.map((d, i) => ({
+    i,
+    tipo: d.tipo_asunto || '',
+    exp: d.numero_expediente || '',
+    fallo: d.sentido_fallo || '',
+    tribunal: d.tribunal || '',
+    circuito: d.circuito || '',
+    articulos: d.articulos_clave || '',
+    resumen: d.resumen || ''
+  }));
+
+  const prompt = `Eres un asistente jurídico especializado en derecho fiscal mexicano con amplio conocimiento en litigio, asesoría y planeación fiscal.
+
+Un abogado fiscal te describe la siguiente situación o caso:
+
+---
+${caso}
+---
+
+Analiza las siguientes sentencias de Tribunales Colegiados en materia fiscal y determina cuáles son relevantes para este caso. Enfócate en:
+- Similitud en el problema tributario de fondo
+- El razonamiento específico del Tribunal y si ese argumento es útil para el caso descrito
+- Los artículos legales involucrados
+- El tipo de acto de autoridad impugnado
+- La lógica jurídica que podría reutilizarse
+
+Responde ÚNICAMENTE con un array JSON válido, sin texto adicional, sin bloques de código. Incluye todas las sentencias que sean útiles, ordenadas de mayor a menor relevancia. Formato exacto:
+[{"i":0,"relevancia":"Alta","razon":"Explicación concreta de por qué esta sentencia aplica y qué argumento específico del tribunal puede usarse en el caso descrito"}]
+
+Si ninguna es relevante, responde: []
+
+SENTENCIAS:
+${JSON.stringify(sentenciasData)}`;
+
+  async function callClaude(model, prompt, maxTokens) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw data.error;
+    let text = data.content[0].text.trim();
+    text = text.replace(/^```json\n?/, '').replace(/^```\n?/, '').replace(/\n?```$/, '');
+    return JSON.parse(text);
+  }
+
+  try {
+    // PASO 1: Haiku filtra candidatas rápidamente
+    results.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;font-size:14px"><span class="loading-dots">Paso 1: filtrando sentencias candidatas</span></div>';
+
+    const datosSimples = allData.map((d, i) => ({
+      i,
+      tipo: d.tipo_asunto || '',
+      fallo: d.sentido_fallo || '',
+      articulos: d.articulos_clave || '',
+      resumen: (d.resumen || '').substring(0, 300)
+    }));
+
+    const promptHaiku = `Eres un asistente jurídico fiscal. Un abogado describe este caso:
+
+---
+${caso}
+---
+
+De las siguientes sentencias, identifica SOLO las que tienen alguna relación temática con el caso (problema fiscal similar, artículos parecidos, tipo de acto comparable). Sé amplio — es mejor incluir de más que dejar fuera una sentencia útil.
+
+Responde ÚNICAMENTE con un array JSON de índices, sin texto adicional. Ejemplo: [0,3,7,12]
+
+SENTENCIAS:
+${JSON.stringify(datosSimples)}`;
+
+    const candidateIndices = await callClaude('claude-haiku-4-5-20251001', promptHaiku, 1024);
+
+    if (!candidateIndices.length) {
+      results.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px">No se encontraron sentencias relacionadas con este caso.</div>';
+      return;
+    }
+
+    // PASO 2: Opus analiza en profundidad solo las candidatas
+    results.innerHTML = `<div style="color:var(--gray);text-align:center;padding:40px;font-size:14px"><span class="loading-dots">Paso 2: analizando ${candidateIndices.length} sentencias candidatas con Opus</span></div>`;
+
+    const candidatas = candidateIndices.map(i => ({
+      i,
+      tipo: allData[i].tipo_asunto || '',
+      exp: allData[i].numero_expediente || '',
+      fallo: allData[i].sentido_fallo || '',
+      tribunal: allData[i].tribunal || '',
+      articulos: allData[i].articulos_clave || '',
+      resumen: allData[i].resumen || ''
+    }));
+
+    const promptOpus = `Eres un abogado fiscal mexicano experto con amplia experiencia en litigio ante Tribunales Colegiados.
+
+Un colega te describe la siguiente situación o caso:
+
+---
+${caso}
+---
+
+Analiza en profundidad las siguientes sentencias y determina cuáles son genuinamente útiles para este caso. Para cada una que sea relevante, explica con precisión qué argumento específico del Tribunal puede aprovecharse y cómo conecta con el caso descrito.
+
+Ordénalas de mayor a menor utilidad. Incluye todas las que sirvan — no te limites en cantidad.
+
+Responde ÚNICAMENTE con un array JSON, sin texto adicional. Formato exacto:
+[{"i":0,"relevancia":"Alta","razon":"Explicación concreta y técnica de por qué esta sentencia aplica y qué argumento del tribunal es aprovechable para el caso"}]
+
+Si alguna candidata no es realmente útil, simplemente no la incluyas.
+
+SENTENCIAS CANDIDATAS:
+${JSON.stringify(candidatas)}`;
+
+    const matches = await callClaude('claude-opus-4-8', promptOpus, 8096);
+
+    if (!matches.length) {
+      results.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px">No se encontraron sentencias relacionadas con este caso en la base de datos actual.</div>';
+      return;
+    }
+
+    const falloLabels = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' };
+
+    results.innerHTML =
+      `<div style="color:var(--gray);font-size:12px;margin-bottom:10px;padding:0 2px">${matches.length} sentencia${matches.length !== 1 ? 's' : ''} relevante${matches.length !== 1 ? 's' : ''} encontrada${matches.length !== 1 ? 's' : ''}</div>
+      <div style="overflow-x:auto;border-radius:12px;border:1px solid rgba(52,152,219,0.3)">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
+          <thead>
+            <tr style="background:rgba(52,152,219,0.08);border-bottom:2px solid #3498DB">
+              <th style="width:3px;padding:0"></th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Relevancia</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tipo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Expediente</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fecha</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tribunal</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Circuito</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Partes</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Por qué aplica</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Archivo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Editor</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${matches.map(m => {
+              const d = allData[m.i];
+              if (!d) return '';
+              const cls = getFalloClass(d.sentido_fallo);
+              const isAlta = m.relevancia === 'Alta';
+              const articulos = (d.articulos_clave || '').split('\n').filter(Boolean)
+                .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
+              return `<tr style="background:rgba(52,152,219,0.03);border-bottom:1px solid rgba(52,152,219,0.08)">
+                <td style="width:3px;padding:0"><div style="width:3px;min-height:40px;border-radius:2px;background:${isAlta ? '#3498DB' : '#888'}"></div></td>
+                <td style="padding:12px 10px;white-space:nowrap">
+                  <span class="relevancia-badge ${isAlta ? 'relevancia-alta' : 'relevancia-media'}">${m.relevancia}</span>
+                </td>
+                <td class="td-tipo" style="padding:12px 10px">${d.tipo_asunto || '—'}</td>
+                <td class="td-exp" style="padding:12px 10px">${d.numero_expediente || '—'}</td>
+                <td class="td-fecha" style="padding:12px 10px">${d.fecha_publicacion || '—'}</td>
+                <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
+                <td class="td-tribunal" style="padding:12px 10px">${d.tribunal || '—'}</td>
+                <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
+                <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
+                <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
+                <td class="td-resumen" style="padding:12px 10px">${d.resumen || '—'}</td>
+                <td style="padding:12px 10px;font-size:12px;color:var(--gray-light);line-height:1.6;min-width:200px;border-left:1px solid rgba(52,152,219,0.15)">
+                  <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
+                  ${m.razon}
+                </td>
+                <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
+                <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
+                <td style="padding:12px 10px;text-align:center;white-space:nowrap">
+                  ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+  } catch(e) {
+    if (e && e.type === 'authentication_error') {
+      apiKey = '';
+      localStorage.removeItem('rors_api_key');
+      results.innerHTML = '<div style="color:var(--niega);padding:20px;text-align:center">API key inválida. <span style="color:var(--gold);cursor:pointer;text-decoration:underline" onclick="document.getElementById(\'apiKeyModal\').classList.add(\'show\')">Actualizar</span></div>';
+    } else {
+      results.innerHTML = `<div style="color:var(--niega);padding:20px;text-align:center">Error al consultar. Intenta de nuevo.</div>`;
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Consultar sentencias';
+  }
+}
+
+// NAV
+document.getElementById('navRefresh').addEventListener('click', loadData);
+
+// SERVICE WORKER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// INIT
+checkAuth();
+</script>
+</body>
+</html>
