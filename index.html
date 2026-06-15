@@ -394,6 +394,13 @@
   .td-partes { font-size: 11px; color: var(--gray); min-width: 160px; }
   .td-articulos { min-width: 150px; }
   .td-resumen { min-width: 520px; max-width: 700px; font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+  @media (max-width: 768px) {
+    .td-resumen { min-width: 280px; max-width: 320px; }
+  }
+  .resumen-text { display: -webkit-box; -webkit-line-clamp: 20; -webkit-box-orient: vertical; overflow: hidden; }
+  .resumen-text.expanded { display: block; -webkit-line-clamp: unset; overflow: visible; }
+  .resumen-toggle { color: var(--gold); font-size: 11px; cursor: pointer; margin-top: 4px; display: inline-block; background: none; border: none; padding: 0; }
+
 
   .art-tag {
     display: inline-block;
@@ -1192,7 +1199,7 @@ function render() {
       <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
       <td class="td-partes">${d.partes || '—'}</td>
       <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-      <td class="td-resumen">${d.resumen || '—'}</td>
+      <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
       <td class="td-editor">${d.editor || '—'}</td>
       <td style="text-align:center;white-space:nowrap">
@@ -1209,6 +1216,12 @@ function render() {
 }
 
 // ESTELARES
+function toggleResumen(btn) {
+  const div = btn.previousElementSibling;
+  const expanded = div.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Ver menos ▴' : 'Ver más ▾';
+}
+
 function toggleEstelar(btn) {
   const id = btn.dataset.id;
   const tr = btn.closest('tr');
@@ -1275,7 +1288,7 @@ function renderEstelares() {
               <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
               <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
               <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-              <td class="td-resumen" style="padding:12px 10px">${d.resumen || '—'}</td>
+              <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
               <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
               <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
               <td style="padding:12px 10px;text-align:center;white-space:nowrap">
@@ -1693,7 +1706,7 @@ ${JSON.stringify(candidatas)}`;
                 <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
                 <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
                 <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-                <td class="td-resumen" style="padding:12px 10px">${d.resumen || '—'}</td>
+                <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td style="padding:12px 10px;font-size:12px;color:var(--gray-light);line-height:1.6;min-width:200px;border-left:1px solid rgba(52,152,219,0.15)">
                   <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
                   ${m.razon}
