@@ -1738,7 +1738,7 @@ ${JSON.stringify(candidatas)}`;
       localStorage.removeItem('rors_api_key');
       results.innerHTML = '<div style="color:var(--niega);padding:20px;text-align:center">API key inválida. <span style="color:var(--gold);cursor:pointer;text-decoration:underline" onclick="document.getElementById(\'apiKeyModal\').classList.add(\'show\')">Actualizar</span></div>';
     } else {
-      results.innerHTML = `<div style="color:var(--niega);padding:20px;text-align:center">Error al consultar. Intenta de nuevo.</div>`;
+      results.innerHTML = `<div style="color:var(--niega);padding:20px;text-align:center">Error al consultar: ${e && e.message ? e.message : JSON.stringify(e)}</div>`;
     }
   } finally {
     btn.disabled = false;
