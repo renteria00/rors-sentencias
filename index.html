@@ -393,7 +393,7 @@
   .td-tribunal { font-size: 12px; min-width: 140px; }
   .td-partes { font-size: 11px; color: var(--gray); min-width: 160px; }
   .td-articulos { min-width: 150px; }
-  .td-resumen { min-width: 220px; font-size: 12px; color: var(--gray-light); line-height: 1.6; }
+  .td-resumen { min-width: 520px; max-width: 700px; font-size: 12px; color: var(--gray-light); line-height: 1.6; }
 
   .art-tag {
     display: inline-block;
@@ -805,38 +805,6 @@
   <button class="filter-btn" data-filter="sobresee">Sobreseídos</button>
   <select class="tribunal-select" id="circuitoSelect">
     <option value="">⚖️ Todos los circuitos</option>
-    <option>Primer Circuito</option>
-    <option>Segundo Circuito</option>
-    <option>Tercer Circuito</option>
-    <option>Cuarto Circuito</option>
-    <option>Quinto Circuito</option>
-    <option>Sexto Circuito</option>
-    <option>Séptimo Circuito</option>
-    <option>Octavo Circuito</option>
-    <option>Noveno Circuito</option>
-    <option>Décimo Circuito</option>
-    <option>Décimo Primer Circuito</option>
-    <option>Décimo Segundo Circuito</option>
-    <option>Décimo Tercer Circuito</option>
-    <option>Décimo Cuarto Circuito</option>
-    <option>Décimo Quinto Circuito</option>
-    <option>Décimo Sexto Circuito</option>
-    <option>Décimo Séptimo Circuito</option>
-    <option>Décimo Octavo Circuito</option>
-    <option>Décimo Noveno Circuito</option>
-    <option>Vigésimo Circuito</option>
-    <option>Vigésimo Primer Circuito</option>
-    <option>Vigésimo Segundo Circuito</option>
-    <option>Vigésimo Tercer Circuito</option>
-    <option>Vigésimo Cuarto Circuito</option>
-    <option>Vigésimo Quinto Circuito</option>
-    <option>Vigésimo Sexto Circuito</option>
-    <option>Vigésimo Séptimo Circuito</option>
-    <option>Vigésimo Octavo Circuito</option>
-    <option>Vigésimo Noveno Circuito</option>
-    <option>Trigésimo Circuito</option>
-    <option>Trigésimo Primer Circuito</option>
-    <option>Trigésimo Segundo Circuito</option>
   </select>
   <button class="filter-btn" id="btnMoreFilters">⚙ Filtros</button>
 </div>
@@ -1134,6 +1102,14 @@ function buildFilterOptions() {
   renderFilterOptions('filterTipo', tipos, 'tipo');
   renderFilterOptions('filterTribunal', tribunales, 'tribunal');
   renderFilterOptions('filterEditor', editors, 'editor');
+
+  // Llenar circuitos dinámicamente desde los datos reales
+  const circuitos = [...new Set(allData.map(d => d.circuito).filter(Boolean).filter(c => c !== 'N/D'))].sort();
+  const tieneOtros = allData.some(d => !d.circuito || d.circuito === 'N/D' || !d.circuito.toLowerCase().includes('circuito'));
+  const sel = document.getElementById('circuitoSelect');
+  sel.innerHTML = '<option value="">⚖️ Todos los circuitos</option>' +
+    circuitos.map(c => `<option value="${c}">${c}</option>`).join('') +
+    (tieneOtros ? '<option value="__otros__">⚠️ Otros / Sin identificar</option>' : '');
 }
 
 function renderFilterOptions(containerId, options, key) {
@@ -1157,7 +1133,9 @@ function getFilteredData() {
   return allData.filter(d => {
     const fCls = getFalloClass(d.sentido_fallo);
     if (activeFilter !== 'all' && fCls !== activeFilter) return false;
-    if (circuitoFilter && d.circuito !== circuitoFilter) return false;
+    if (circuitoFilter === '__otros__') {
+      if (d.circuito && d.circuito !== 'N/D' && d.circuito.toLowerCase().includes('circuito')) return false;
+    } else if (circuitoFilter && d.circuito !== circuitoFilter) return false;
     if (advancedFilters.tipo.length && !advancedFilters.tipo.includes(d.tipo_asunto)) return false;
     if (advancedFilters.editor.length && !advancedFilters.editor.includes(d.editor)) return false;
     if (searchQuery) {
@@ -1287,7 +1265,7 @@ function renderEstelares() {
             const falloLabel = falloLabels[cls];
             const articulos = (d.articulos_clave || '').split('\n').filter(Boolean)
               .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
-            return `<tr style="background:rgba(201,168,76,0.04);border-bottom:1px solid rgba(201,168,76,0.1)">
+            return `<tr style="background:rgba(201,168,76,0.04);border-bottom:1px solid rgba(201,168,76,0.1);vertical-align:top">
               <td style="width:3px;padding:0"><div class="${cls}" style="width:3px;min-height:40px;border-radius:2px;background:var(--${cls === 'concede' ? 'concede' : cls === 'niega' ? 'niega' : cls === 'sobresee' ? 'sobresee' : 'other'})"></div></td>
               <td class="td-tipo" style="padding:12px 10px">${d.tipo_asunto || '—'}</td>
               <td class="td-exp" style="padding:12px 10px">${d.numero_expediente || '—'}</td>
