@@ -830,7 +830,7 @@
         <th class="sortable" data-sort="sentido_fallo">Fallo<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="tribunal">Tribunal<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="circuito">Circuito<span class="sort-ind">↕</span></th>
-        <th class="sortable" data-sort="partes">Partes<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="partes">Autoridad Responsable<span class="sort-ind">↕</span></th>
         <th>Artículos Clave</th>
         <th>Resumen</th>
         <th class="sortable" data-sort="nombre_archivo">Archivo<span class="sort-ind">↕</span></th>
@@ -889,7 +889,7 @@
   <div class="consult-card">
     <div class="consult-label">Describe tu caso o situación</div>
     <textarea class="consult-textarea" id="casoInput"
-      placeholder="Ej: Mi cliente recibió una resolución del SAT rechazando la deducción de gastos por concepto de servicios profesionales. La autoridad argumenta que los CFDI no acreditan la materialidad de los servicios. ¿Qué sentencias podrían apoyar nuestra defensa?"></textarea>
+      placeholder=""></textarea>
     <button class="btn-consultar" id="btnConsultar" onclick="consultarCaso()">Consultar sentencias</button>
   </div>
   <div class="consult-results" id="consultResults"></div>
@@ -1197,7 +1197,7 @@ function render() {
       <td><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
       <td class="td-tribunal">${d.tribunal || '—'}</td>
       <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
-      <td class="td-partes">${d.partes || '—'}</td>
+      <td class="td-partes">${getAutoridad(d.partes)}</td>
       <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
       <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
@@ -1216,6 +1216,16 @@ function render() {
 }
 
 // ESTELARES
+function getAutoridad(partes) {
+  if (!partes) return '—';
+  const lower = partes.toLowerCase();
+  const idx = lower.indexOf('autoridad responsable:');
+  if (idx !== -1) return partes.substring(idx + 'autoridad responsable:'.length).trim();
+  const idx2 = lower.indexOf(' / ');
+  if (idx2 !== -1) return partes.substring(idx2 + 3).trim();
+  return partes;
+}
+
 function toggleResumen(btn) {
   const div = btn.previousElementSibling;
   const expanded = div.classList.toggle('expanded');
@@ -1263,7 +1273,7 @@ function renderEstelares() {
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tribunal</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Circuito</th>
-            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Partes</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Autoridad Responsable</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Archivo</th>
@@ -1286,7 +1296,7 @@ function renderEstelares() {
               <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
               <td class="td-tribunal" style="padding:12px 10px">${d.tribunal || '—'}</td>
               <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
-              <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
+              <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
               <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
               <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
               <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
@@ -1676,7 +1686,7 @@ ${JSON.stringify(candidatas)}`;
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tribunal</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Circuito</th>
-              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Partes</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Autoridad Responsable</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Por qué aplica</th>
@@ -1704,7 +1714,7 @@ ${JSON.stringify(candidatas)}`;
                 <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
                 <td class="td-tribunal" style="padding:12px 10px">${d.tribunal || '—'}</td>
                 <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
-                <td class="td-partes" style="padding:12px 10px">${d.partes || '—'}</td>
+                <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
                 <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
                 <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td style="padding:12px 10px;font-size:12px;color:var(--gray-light);line-height:1.6;min-width:200px;border-left:1px solid rgba(52,152,219,0.15)">
