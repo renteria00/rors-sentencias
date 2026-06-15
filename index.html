@@ -743,6 +743,53 @@
   .sort-ind { margin-left: 4px; opacity: 0.4; font-size: 9px; }
   th.sort-active .sort-ind { opacity: 1; }
 
+  /* TEMA INPUT */
+  .tema-input {
+    background: rgba(201,168,76,0.14);
+    border: 1px dashed rgba(201,168,76,0.6);
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    width: 120px;
+    outline: none;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .tema-input::placeholder { color: rgba(201,168,76,0.35); font-weight: 400; text-transform: none; letter-spacing: 0; font-style: italic; }
+  .tema-input:focus { border-color: var(--gold); background: rgba(201,168,76,0.22); border-style: solid; }
+  .tema-input.captured {
+    background: rgba(136,136,136,0.07);
+    border: 1px solid rgba(136,136,136,0.18);
+    border-style: solid;
+    color: var(--gray-light);
+  }
+
+  /* STATS HEADER BUTTON */
+  .stats-icon-btn {
+    background: none; border: 1px solid var(--border); color: var(--gray);
+    cursor: pointer; font-size: 10px; padding: 2px 6px;
+    display: flex; align-items: center; gap: 4px;
+    border-radius: 8px; transition: all 0.2s; white-space: nowrap;
+  }
+  .stats-icon-btn:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* TEMAS SECTION */
+  .temas-select {
+    width: 100%; background: var(--card); border: 1px solid var(--gold);
+    border-radius: 12px; padding: 12px 16px; color: var(--white);
+    font-size: 14px; font-weight: 700; outline: none; cursor: pointer;
+    appearance: none; -webkit-appearance: none; margin-bottom: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 16px center; padding-right: 36px;
+  }
+  .temas-select option { background: #1A1A1A; color: #FFF; }
+
   /* RESPONSIVE */
   @media (min-width: 600px) {
     .cards { padding: 0 20px; }
@@ -786,8 +833,12 @@
         <div class="logo-text-sub">Sentencias</div>
       </div>
     </div>
-    <div class="update-badge">
-      Actualizado<br><span id="lastUpdate">—</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span></div>
+      <button class="stats-icon-btn" id="btnStatsHeader">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
+        Estadísticas
+      </button>
     </div>
   </div>
   <div class="search-wrap">
@@ -828,6 +879,7 @@
         <th class="sortable" data-sort="numero_expediente">Expediente<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="fecha_publicacion">Fecha<span class="sort-ind">↓</span></th>
         <th class="sortable" data-sort="sentido_fallo">Fallo<span class="sort-ind">↕</span></th>
+        <th style="text-align:center">Tema</th>
         <th class="sortable" data-sort="tribunal">Tribunal<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="circuito">Circuito<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="partes">Autoridad Responsable<span class="sort-ind">↕</span></th>
@@ -879,9 +931,19 @@
   <div id="estelaresContent"></div>
 </div>
 
-<!-- ESTADÍSTICAS SECTION -->
-<div class="consult-section" id="statsSection">
-  <div id="statsContent"></div>
+<!-- TEMAS SECTION -->
+<div class="consult-section" id="temasSection">
+  <div id="temasContent"></div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="statsModal">
+  <div class="modal" style="max-width:500px;max-height:80vh;overflow-y:auto">
+    <button class="modal-close" id="closeStatsModal">✕</button>
+    <div class="modal-title">Estadísticas</div>
+    <br>
+    <div id="statsModalContent"></div>
+  </div>
 </div>
 
 <!-- CONSULTAR SECTION -->
@@ -920,9 +982,9 @@
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Inicio
   </div>
-  <div class="nav-item" id="navStats">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
-    Estadísticas
+  <div class="nav-item" id="navTemas">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+    Temas
   </div>
   <div class="nav-item" id="navEstelares">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -974,6 +1036,7 @@ function checkAuth() {
 let allData = [];
 let revisadas = new Set(JSON.parse(localStorage.getItem('rors_revisadas') || '[]'));
 let estelares = new Set(JSON.parse(localStorage.getItem('rors_estelares') || '[]'));
+let temas = JSON.parse(localStorage.getItem('rors_temas') || '{}');
 let activeFilter = 'all';
 let advancedFilters = { tipo: [], tribunal: [], editor: [] };
 let searchQuery = '';
@@ -1194,12 +1257,14 @@ function render() {
 
     const esEstelar = estelares.has(d.nombre_archivo);
     const esRevisada = revisadas.has(d.nombre_archivo);
+    const temaVal = temas[d.nombre_archivo] || '';
     return `<tr class="${esRevisada ? 'revisada' : ''} ${esEstelar ? 'estelar' : ''}">
       <td class="td-left-bar"><div class="${cls}"></div></td>
       <td class="td-tipo">${d.tipo_asunto || '—'}</td>
       <td class="td-exp">${d.numero_expediente || '—'}</td>
       <td class="td-fecha">${d.fecha_publicacion || '—'}</td>
       <td><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
+      <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
       <td class="td-tribunal">${d.tribunal || '—'}</td>
       <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
       <td class="td-partes">${getAutoridad(d.partes)}</td>
@@ -1405,7 +1470,7 @@ function showView(view) {
   activeView = view;
   const isHome = view === 'home';
   const isConsult = view === 'consult';
-  const isStats = view === 'stats';
+  const isTemas = view === 'temas';
   const isEstelares = view === 'estelares';
   const isHistorial = view === 'historial';
 
@@ -1415,22 +1480,26 @@ function showView(view) {
   });
 
   document.getElementById('consultSection').classList.toggle('active', isConsult);
-  document.getElementById('statsSection').classList.toggle('active', isStats);
+  document.getElementById('temasSection').classList.toggle('active', isTemas);
   document.getElementById('estelaresSection').classList.toggle('active', isEstelares);
   document.getElementById('historialSection').classList.toggle('active', isHistorial);
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (isHome) document.getElementById('navHome').classList.add('active');
-  if (isStats) document.getElementById('navStats').classList.add('active');
+  if (isTemas) document.getElementById('navTemas').classList.add('active');
   if (isConsult) document.getElementById('navConsult').classList.add('active');
   if (isEstelares) document.getElementById('navEstelares').classList.add('active');
   if (isHistorial) document.getElementById('navHistorial').classList.add('active');
 }
 
-function renderStats() {
+function renderStatsModal() {
+  renderStats(document.getElementById('statsModalContent'));
+}
+
+function renderStats(targetEl) {
+  if (!targetEl) return;
   if (!allData.length) {
-    document.getElementById('statsContent').innerHTML =
-      '<div style="text-align:center;padding:60px 20px;color:var(--gray)">Sin datos aún.</div>';
+    targetEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--gray)">Sin datos aún.</div>';
     return;
   }
 
@@ -1499,13 +1568,122 @@ function renderStats() {
   });
 
   html += `</div>`;
-  document.getElementById('statsContent').innerHTML = html;
+  targetEl.innerHTML = html;
 }
 
 document.getElementById('navHome').addEventListener('click', () => showView('home'));
 document.getElementById('navEstelares').addEventListener('click', () => { showView('estelares'); renderEstelares(); });
-document.getElementById('navStats').addEventListener('click', () => { showView('stats'); renderStats(); });
+document.getElementById('navTemas').addEventListener('click', () => { showView('temas'); renderTemas(); });
 document.getElementById('navConsult').addEventListener('click', () => showView('consult'));
+
+// STATS HEADER BUTTON
+document.getElementById('btnStatsHeader').addEventListener('click', () => {
+  renderStatsModal();
+  document.getElementById('statsModal').classList.add('show');
+});
+document.getElementById('closeStatsModal').addEventListener('click', () => {
+  document.getElementById('statsModal').classList.remove('show');
+});
+
+// SAVE TEMA
+function saveTema(input) {
+  const id = input.dataset.id;
+  const val = input.value.trim().toUpperCase();
+  input.value = val;
+  if (val) {
+    temas[id] = val;
+    input.classList.add('captured');
+  } else {
+    delete temas[id];
+    input.classList.remove('captured');
+  }
+  localStorage.setItem('rors_temas', JSON.stringify(temas));
+}
+
+// RENDER TEMAS
+function renderTemas() {
+  const el = document.getElementById('temasContent');
+  const todosTemas = [...new Set(Object.values(temas))].sort();
+
+  if (!todosTemas.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:16px">🏷️</div><div style="font-size:16px;color:var(--gray-light);margin-bottom:8px">Sin temas capturados</div><div style="font-size:13px">Escribe el tema de cada sentencia en la tabla principal para verlas clasificadas aquí.</div></div>';
+    return;
+  }
+
+  const falloLabels = { concede: 'CONCEDE', niega: 'NIEGA', sobresee: 'SOBRESEE', other: 'OTRO' };
+
+  const conteo = {};
+  Object.values(temas).forEach(t => { conteo[t] = (conteo[t] || 0) + 1; });
+
+  let html = `
+    <div style="margin-bottom:20px">
+      <select class="temas-select" id="temaSelector">
+        <option value="">— Selecciona un tema —</option>
+        ${todosTemas.map(t => `<option value="${t}">${t} (${conteo[t] || 0})</option>`).join('')}
+      </select>
+    </div>
+    <div id="temaResultados"></div>`;
+
+  el.innerHTML = html;
+
+  document.getElementById('temaSelector').addEventListener('change', function() {
+    const temaElegido = this.value;
+    const resDiv = document.getElementById('temaResultados');
+    if (!temaElegido) { resDiv.innerHTML = ''; return; }
+
+    const data = allData.filter(d => temas[d.nombre_archivo] === temaElegido);
+
+    if (!data.length) { resDiv.innerHTML = '<div style="color:var(--gray);text-align:center;padding:20px">Sin sentencias con este tema.</div>'; return; }
+
+    resDiv.innerHTML = `
+      <div style="color:var(--gray);font-size:12px;margin-bottom:10px">${data.length} sentencia${data.length !== 1 ? 's' : ''} con tema <strong style="color:var(--gold)">${temaElegido}</strong></div>
+      <div style="overflow-x:auto;border-radius:12px;border:1px solid rgba(201,168,76,0.3)">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
+          <thead>
+            <tr style="background:rgba(201,168,76,0.08);border-bottom:2px solid var(--gold)">
+              <th style="width:3px;padding:0"></th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tipo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Expediente</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fecha</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fallo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tribunal</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Circuito</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Autoridad Responsable</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Artículos Clave</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Resumen</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Archivo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Editor</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:center">PDF</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:center">★</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(d => {
+              const cls = getFalloClass(d.sentido_fallo);
+              const fl = falloLabels[cls];
+              const arts = (d.articulos_clave || '').split('\n').filter(Boolean).map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
+              return `<tr style="border-bottom:1px solid rgba(201,168,76,0.1);vertical-align:top">
+                <td style="width:3px;padding:0"><div style="width:3px;min-height:40px;border-radius:2px;background:var(--${cls==='concede'?'concede':cls==='niega'?'niega':cls==='sobresee'?'sobresee':'other'})"></div></td>
+                <td class="td-tipo" style="padding:10px">${d.tipo_asunto || '—'}</td>
+                <td class="td-exp" style="padding:10px">${d.numero_expediente || '—'}</td>
+                <td class="td-fecha" style="padding:10px">${d.fecha_publicacion || '—'}</td>
+                <td style="padding:10px"><span class="fallo-badge ${cls}">${fl}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
+                <td class="td-tribunal" style="padding:10px">${d.tribunal || '—'}</td>
+                <td style="padding:10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
+                <td class="td-partes" style="padding:10px">${getAutoridad(d.partes)}</td>
+                <td class="td-articulos" style="padding:10px">${arts || '<span style="color:var(--gray)">—</span>'}</td>
+                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td class="td-editor" style="padding:10px">${d.nombre_archivo || '—'}</td>
+                <td class="td-editor" style="padding:10px">${d.editor || '—'}</td>
+                <td style="padding:10px;text-align:center;white-space:nowrap">${d.url_drive ? '<a href="' + d.url_drive + '" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>' : '<span style="color:var(--gray)">—</span>'}</td>
+                <td style="padding:10px;text-align:center"><button class="star-btn ${estelares.has(d.nombre_archivo)?'starred':''}" data-id="${d.nombre_archivo}" onclick="toggleEstelar(this)">★</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  });
+}
 
 // API KEY
 let apiKey = localStorage.getItem('rors_api_key') || '';
