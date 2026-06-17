@@ -853,6 +853,7 @@
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
       <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span><br><span id="lastUpdateTime" style="font-size:10px;opacity:0.7">—</span></div>
       <div style="display:flex;gap:6px;align-items:center">
+      <button onclick="showView('consult')" style="font-size:11px;padding:5px 14px;border-radius:8px;border:1.5px solid var(--gold);background:rgba(201,168,76,0.15);color:var(--gold);cursor:pointer;font-weight:700;white-space:nowrap;letter-spacing:0.5px">CONSULTA</button>
       <button id="btnSelectFolder" title="Seleccionar carpeta local de PDFs" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.1);color:var(--gold);cursor:pointer;white-space:nowrap">📁 PDFs</button>
       <button class="stats-icon-btn" id="btnStatsHeader">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
@@ -914,6 +915,7 @@
         <th style="text-align:center">PDF</th>
         <th style="text-align:center">★</th>
         <th style="text-align:center">✓</th>
+        <th style="text-align:center;color:#E74C3C">✕</th>
       </tr>
     </thead>
     <tbody id="cardList"></tbody>
@@ -955,6 +957,11 @@
   <div id="estelaresContent"></div>
 </div>
 
+<!-- SECUNDARIAS SECTION -->
+<div class="consult-section" id="secundariasSection">
+  <div id="secundariasContent"></div>
+</div>
+
 <!-- TEMAS SECTION -->
 <div class="consult-section" id="temasSection">
   <div id="temasContent"></div>
@@ -972,10 +979,13 @@
 
 <!-- CONSULTAR SECTION -->
 <div class="consult-section" id="consultSection">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0">
+    <div style="font-size:14px;font-weight:700;color:var(--gold)">Consultar sentencias</div>
+    <button onclick="showView('historial');renderHistorial()" style="font-size:11px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--gray-light);cursor:pointer;font-weight:600">📋 Historial</button>
+  </div>
   <div class="consult-card">
     <div class="consult-label">Describe tu caso o situación</div>
-    <textarea class="consult-textarea" id="casoInput"
-      placeholder=""></textarea>
+    <textarea class="consult-textarea" id="casoInput" placeholder=""></textarea>
     <button class="btn-consultar" id="btnConsultar" onclick="consultarCaso()">Consultar sentencias</button>
   </div>
   <div class="consult-results" id="consultResults"></div>
@@ -983,6 +993,10 @@
 
 <!-- HISTORIAL SECTION -->
 <div class="consult-section" id="historialSection">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px">
+    <div style="font-size:14px;font-weight:700;color:var(--gold)">Historial de consultas</div>
+    <button onclick="showView('consult')" style="font-size:11px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--gray-light);cursor:pointer;font-weight:600">← Nueva consulta</button>
+  </div>
   <div id="historialContent"></div>
 </div>
 
@@ -1002,25 +1016,25 @@
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" id="navHome">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    Inicio
-  </div>
-  <div class="nav-item" id="navTemas">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
-    Temas
+  <div class="nav-item active" id="navNuevas">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+    Nuevas
   </div>
   <div class="nav-item" id="navEstelares">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
     Estelares
   </div>
-  <div class="nav-item" id="navConsult">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Consultar
+  <div class="nav-item" id="navSecundarias">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+    Secundarias
   </div>
-  <div class="nav-item" id="navHistorial">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-    Historial
+  <div class="nav-item" id="navTodas">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+    Todas
+  </div>
+  <div class="nav-item" id="navTemas">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+    Temas
   </div>
 </div>
 
@@ -1060,7 +1074,9 @@ function checkAuth() {
 let allData = [];
 let revisadas = new Set(JSON.parse(localStorage.getItem('rors_revisadas') || '[]'));
 let estelares = new Set(JSON.parse(localStorage.getItem('rors_estelares') || '[]'));
+let secundarias = new Set(JSON.parse(localStorage.getItem('rors_secundarias') || '[]'));
 let temas = JSON.parse(localStorage.getItem('rors_temas') || '{}');
+let homeView = 'nuevas'; // 'nuevas' | 'todas'
 
 const WORKER_URL = 'https://rors-proxy.renteriafacturas.workers.dev';
 
@@ -1069,6 +1085,7 @@ async function syncToCloud() {
     const data = {
       temas,
       estelares: [...estelares],
+      secundarias: [...secundarias],
       revisadas: [...revisadas],
       consultas: JSON.parse(localStorage.getItem('rors_consultas') || '[]')
     };
@@ -1092,6 +1109,10 @@ async function syncFromCloud() {
     if (Array.isArray(data.estelares)) {
       estelares = new Set(data.estelares);
       localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+    }
+    if (Array.isArray(data.secundarias)) {
+      secundarias = new Set(data.secundarias);
+      localStorage.setItem('rors_secundarias', JSON.stringify([...secundarias]));
     }
     if (Array.isArray(data.revisadas)) {
       revisadas = new Set(data.revisadas);
@@ -1283,6 +1304,11 @@ function renderFilterOptions(containerId, options, key) {
 // GET FILTERED DATA
 function getFilteredData() {
   return allData.filter(d => {
+    // En vista NUEVAS: ocultar estelares y secundarias
+    if (activeView === 'nuevas') {
+      if (estelares.has(d.nombre_archivo)) return false;
+      if (secundarias.has(d.nombre_archivo)) return false;
+    }
     const fCls = getFalloClass(d.sentido_fallo);
     if (activeFilter !== 'all' && fCls !== activeFilter) return false;
     if (circuitoFilter === '__otros__') {
@@ -1357,6 +1383,9 @@ function render() {
       </td>
       <td style="text-align:center">
         <button class="check-btn ${revisadas.has(d.nombre_archivo) ? 'checked' : ''}" data-id="${d.nombre_archivo}" onclick="toggleRevisada(this)">✓</button>
+      </td>
+      <td style="text-align:center">
+        <button onclick="toggleSecundaria('${d.nombre_archivo}')" title="Marcar como secundaria" style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${secundarias.has(d.nombre_archivo) ? '#E74C3C' : 'var(--border)'};background:${secundarias.has(d.nombre_archivo) ? 'rgba(231,76,60,0.2)' : 'transparent'};color:${secundarias.has(d.nombre_archivo) ? '#E74C3C' : 'var(--gray)'};font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto">✕</button>
       </td>
     </tr>`;
   }).join('');
@@ -1461,6 +1490,65 @@ function renderEstelares() {
       </table>
     </div>`;
 }
+
+function toggleSecundaria(id) {
+  if (secundarias.has(id)) {
+    secundarias.delete(id);
+  } else {
+    secundarias.add(id);
+    // Si era estelar, quitarla de estelares
+    if (estelares.has(id)) {
+      estelares.delete(id);
+      localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
+    }
+  }
+  localStorage.setItem('rors_secundarias', JSON.stringify([...secundarias]));
+  syncToCloud();
+  render();
+}
+
+function renderSecundarias() {
+  const data = allData.filter(d => secundarias.has(d.nombre_archivo));
+  const el = document.getElementById('secundariasContent');
+  if (!data.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:16px">✕</div><div style="font-size:16px;color:var(--gray-light);margin-bottom:8px">Sin secundarias aún</div><div style="font-size:13px">Marca una sentencia con ✕ en la tabla para moverla aquí.</div></div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="padding:16px 20px 8px;font-size:13px;color:var(--gray)">${data.length} sentencia${data.length !== 1 ? 's' : ''} secundaria${data.length !== 1 ? 's' : ''}</div>
+    <div class="table-wrap">
+      <table class="sent-table">
+        <thead><tr>
+          <th style="width:3px;padding:0"></th>
+          <th>Tipo</th><th>Tema Sugerido</th><th>Expediente</th><th>Fecha</th><th>Fallo</th><th>Resumen</th>
+          <th style="text-align:center">Restaurar</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(d => `<tr>
+            <td style="width:3px;padding:0;background:#E74C3C"></td>
+            <td class="td-tipo">${d.tipo_asunto || '—'}</td>
+            <td class="td-tema">${d.tema_sugerido || '—'}</td>
+            <td class="td-exp">${d.numero_expediente || '—'}</td>
+            <td style="font-size:11px;white-space:nowrap">${d.fecha_publicacion || '—'}</td>
+            <td><span class="fallo-badge fallo-${getFalloClass(d.sentido_fallo)}">${d.sentido_fallo || '—'}</span></td>
+            <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+            <td style="text-align:center">
+              <button onclick="quitarSecundaria('${d.nombre_archivo}')" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #E74C3C;background:rgba(231,76,60,0.1);color:#E74C3C;cursor:pointer">Restaurar</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function quitarSecundaria(id) {
+  secundarias.delete(id);
+  localStorage.setItem('rors_secundarias', JSON.stringify([...secundarias]));
+  syncToCloud();
+  renderSecundarias();
+  render();
+}
+
 
 function quitarEstelar(id) {
   estelares.delete(id);
@@ -1594,15 +1682,16 @@ document.getElementById('clearFilters').addEventListener('click', () => {
 });
 
 // VIEW SWITCHING
-let activeView = 'home';
+let activeView = 'nuevas';
 const homeElements = ['statsBar', 'filterBar', 'resultsLabel', 'tableWrap', 'emptyState'];
 
 function showView(view) {
   activeView = view;
-  const isHome = view === 'home';
-  const isConsult = view === 'consult';
+  const isHome = view === 'nuevas' || view === 'todas';
   const isTemas = view === 'temas';
   const isEstelares = view === 'estelares';
+  const isSecundarias = view === 'secundarias';
+  const isConsult = view === 'consult';
   const isHistorial = view === 'historial';
 
   homeElements.forEach(id => {
@@ -1610,17 +1699,18 @@ function showView(view) {
     if (el) el.style.display = isHome ? '' : 'none';
   });
 
-  document.getElementById('consultSection').classList.toggle('active', isConsult);
   document.getElementById('temasSection').classList.toggle('active', isTemas);
   document.getElementById('estelaresSection').classList.toggle('active', isEstelares);
+  document.getElementById('secundariasSection').classList.toggle('active', isSecundarias);
+  document.getElementById('consultSection').classList.toggle('active', isConsult);
   document.getElementById('historialSection').classList.toggle('active', isHistorial);
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (isHome) document.getElementById('navHome').classList.add('active');
+  if (view === 'nuevas') document.getElementById('navNuevas').classList.add('active');
+  if (view === 'todas') document.getElementById('navTodas').classList.add('active');
   if (isTemas) document.getElementById('navTemas').classList.add('active');
-  if (isConsult) document.getElementById('navConsult').classList.add('active');
   if (isEstelares) document.getElementById('navEstelares').classList.add('active');
-  if (isHistorial) document.getElementById('navHistorial').classList.add('active');
+  if (isSecundarias) document.getElementById('navSecundarias').classList.add('active');
 }
 
 function renderStatsModal() {
@@ -1736,10 +1826,11 @@ function renderStats(targetEl) {
   targetEl.innerHTML = html;
 }
 
-document.getElementById('navHome').addEventListener('click', () => showView('home'));
+document.getElementById('navNuevas').addEventListener('click', () => { homeView = 'nuevas'; showView('nuevas'); render(); });
+document.getElementById('navTodas').addEventListener('click', () => { homeView = 'todas'; showView('todas'); render(); });
 document.getElementById('navEstelares').addEventListener('click', () => { showView('estelares'); renderEstelares(); });
+document.getElementById('navSecundarias').addEventListener('click', () => { showView('secundarias'); renderSecundarias(); });
 document.getElementById('navTemas').addEventListener('click', () => { showView('temas'); renderTemas(); });
-document.getElementById('navConsult').addEventListener('click', () => showView('consult'));
 
 // STATS HEADER BUTTON
 document.getElementById('btnStatsHeader').addEventListener('click', () => {
@@ -2103,7 +2194,6 @@ ${JSON.stringify(candidatas)}`;
 }
 
 // NAV
-document.getElementById('navHistorial').addEventListener('click', () => { showView('historial'); renderHistorial(); });
 
 // HISTORIAL
 function escapeHtml(str) {
