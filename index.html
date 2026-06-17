@@ -885,6 +885,7 @@
     <option value="">💡 Todos los temas</option>
   </select>
   <button class="filter-btn" id="btnMoreFilters">⚙ Filtros</button>
+  <button class="filter-btn" id="btnSelectFolder" title="Seleccionar carpeta local de PDFs">📁 PDFs locales</button>
 </div>
 
 <div class="section-title" id="resultsLabel">Cargando...</div>
@@ -1105,6 +1106,7 @@ let advancedFilters = { tipo: [], tribunal: [], editor: [] };
 let searchQuery = '';
 let circuitoFilter = '';
 let temaSugeridoFilter = '';
+let localFolderHandle = null;
 let sortKey = 'fecha_publicacion';
 let sortDir = 'desc';
 
@@ -1347,9 +1349,7 @@ function render() {
       <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
       <td class="td-editor">${d.editor || '—'}</td>
-      <td style="text-align:center;white-space:nowrap">
-        ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
-      </td>
+      <td style="text-align:center;white-space:nowrap">${pdfButton(d)}</td>
       <td style="text-align:center">
         <button class="star-btn ${estelares.has(d.nombre_archivo) ? 'starred' : ''}" data-id="${d.nombre_archivo}" onclick="toggleEstelar(this)">★</button>
       </td>
@@ -1449,9 +1449,7 @@ function renderEstelares() {
               <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
               <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
               <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
-              <td style="padding:12px 10px;text-align:center;white-space:nowrap">
-                ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
-              </td>
+              <td style="padding:12px 10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
               <td style="padding:12px 10px;text-align:center">
                 <button onclick="quitarEstelar('${d.nombre_archivo}')" style="width:24px;height:24px;border-radius:50%;border:1.5px solid var(--gold-light);background:rgba(255,215,0,0.12);color:var(--gold-light);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto">★</button>
               </td>
@@ -1514,6 +1512,50 @@ document.getElementById('circuitoSelect').addEventListener('change', e => {
   circuitoFilter = e.target.value;
   e.target.className = 'tribunal-select' + (circuitoFilter ? ' active' : '');
   render();
+});
+
+// CARPETA LOCAL DE PDFs
+function pdfButton(d) {
+  const style = `display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none;cursor:pointer`;
+  if (d.url_drive) return `<a href="${d.url_drive}" target="_blank" style="${style}">📄 Ver</a>`;
+  if (localFolderHandle) return `<button onclick="openLocalPdf('${d.nombre_archivo}')" style="${style};background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3)">📄 Ver</button>`;
+  return '<span style="color:var(--gray)">—</span>';
+}
+
+async function findFileInDir(dirHandle, filename) {
+  for await (const [name, handle] of dirHandle.entries()) {
+    if (handle.kind === 'file' && name.toLowerCase() === filename.toLowerCase()) return handle;
+    if (handle.kind === 'directory') {
+      const found = await findFileInDir(handle, filename);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+async function openLocalPdf(filename) {
+  if (!localFolderHandle) {
+    alert('Primero selecciona la carpeta de PDFs con el botón "📁 PDFs locales"');
+    return;
+  }
+  const fileHandle = await findFileInDir(localFolderHandle, filename);
+  if (!fileHandle) { alert(`No se encontró: ${filename}`); return; }
+  const file = await fileHandle.getFile();
+  const url = URL.createObjectURL(file);
+  window.open(url, '_blank');
+}
+
+document.getElementById('btnSelectFolder').addEventListener('click', async () => {
+  if (!('showDirectoryPicker' in window)) {
+    alert('Tu navegador no soporta esta función. Usa Chrome o Edge en PC.');
+    return;
+  }
+  try {
+    localFolderHandle = await window.showDirectoryPicker();
+    document.getElementById('btnSelectFolder').textContent = '📁 ' + localFolderHandle.name;
+    document.getElementById('btnSelectFolder').classList.add('active');
+    render();
+  } catch(e) { /* cancelado */ }
 });
 
 // TEMA SUGERIDO SELECT
@@ -1799,7 +1841,7 @@ function renderTemas() {
                 <td class="td-resumen" style="padding:10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td class="td-editor" style="padding:10px">${d.nombre_archivo || '—'}</td>
                 <td class="td-editor" style="padding:10px">${d.editor || '—'}</td>
-                <td style="padding:10px;text-align:center;white-space:nowrap">${d.url_drive ? '<a href="' + d.url_drive + '" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>' : '<span style="color:var(--gray)">—</span>'}</td>
+                <td style="padding:10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
                 <td style="padding:10px;text-align:center"><button class="star-btn ${estelares.has(d.nombre_archivo)?'starred':''}" data-id="${d.nombre_archivo}" onclick="toggleEstelar(this)">★</button></td>
               </tr>`;
             }).join('')}
@@ -2034,9 +2076,7 @@ ${JSON.stringify(candidatas)}`;
                 </td>
                 <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
                 <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
-                <td style="padding:12px 10px;text-align:center;white-space:nowrap">
-                  ${d.url_drive ? `<a href="${d.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
-                </td>
+                <td style="padding:12px 10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
               </tr>`;
             }).join('')}
           </tbody>
