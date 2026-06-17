@@ -881,6 +881,9 @@
   <select class="tribunal-select" id="circuitoSelect">
     <option value="">⚖️ Todos los circuitos</option>
   </select>
+  <select class="tribunal-select" id="temaSugeridoSelect">
+    <option value="">💡 Todos los temas</option>
+  </select>
   <button class="filter-btn" id="btnMoreFilters">⚙ Filtros</button>
 </div>
 
@@ -1101,6 +1104,7 @@ let activeFilter = 'all';
 let advancedFilters = { tipo: [], tribunal: [], editor: [] };
 let searchQuery = '';
 let circuitoFilter = '';
+let temaSugeridoFilter = '';
 let sortKey = 'fecha_publicacion';
 let sortDir = 'desc';
 
@@ -1248,6 +1252,12 @@ function buildFilterOptions() {
   sel.innerHTML = '<option value="">⚖️ Todos los circuitos</option>' +
     circuitos.map(c => `<option value="${c}">${c}</option>`).join('') +
     (tieneOtros ? '<option value="__otros__">⚠️ Otros / Sin identificar</option>' : '');
+
+  // Llenar temas sugeridos dinámicamente
+  const temas = [...new Set(allData.map(d => d.tema_sugerido).filter(Boolean))].sort();
+  const selTema = document.getElementById('temaSugeridoSelect');
+  selTema.innerHTML = '<option value="">💡 Todos los temas</option>' +
+    temas.map(t => `<option value="${t}">${t}</option>`).join('');
 }
 
 function renderFilterOptions(containerId, options, key) {
@@ -1274,6 +1284,7 @@ function getFilteredData() {
     if (circuitoFilter === '__otros__') {
       if (d.circuito && d.circuito !== 'N/D' && d.circuito.toLowerCase().includes('circuito')) return false;
     } else if (circuitoFilter && d.circuito !== circuitoFilter) return false;
+    if (temaSugeridoFilter && d.tema_sugerido !== temaSugeridoFilter) return false;
     if (advancedFilters.tipo.length && !advancedFilters.tipo.includes(d.tipo_asunto)) return false;
     if (advancedFilters.editor.length && !advancedFilters.editor.includes(d.editor)) return false;
     if (searchQuery) {
@@ -1502,6 +1513,13 @@ document.getElementById('searchInput').addEventListener('input', e => {
 document.getElementById('circuitoSelect').addEventListener('change', e => {
   circuitoFilter = e.target.value;
   e.target.className = 'tribunal-select' + (circuitoFilter ? ' active' : '');
+  render();
+});
+
+// TEMA SUGERIDO SELECT
+document.getElementById('temaSugeridoSelect').addEventListener('change', e => {
+  temaSugeridoFilter = e.target.value;
+  e.target.className = 'tribunal-select' + (temaSugeridoFilter ? ' active' : '');
   render();
 });
 
