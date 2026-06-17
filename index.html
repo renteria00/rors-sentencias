@@ -852,10 +852,13 @@
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
       <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span><br><span id="lastUpdateTime" style="font-size:10px;opacity:0.7">—</span></div>
+      <div style="display:flex;gap:6px;align-items:center">
+      <button id="btnSelectFolder" title="Seleccionar carpeta local de PDFs" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.1);color:var(--gold);cursor:pointer;white-space:nowrap">📁 PDFs</button>
       <button class="stats-icon-btn" id="btnStatsHeader">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
         Estadísticas
       </button>
+      </div>
     </div>
   </div>
   <div class="search-wrap">
@@ -885,7 +888,6 @@
     <option value="">💡 Todos los temas</option>
   </select>
   <button class="filter-btn" id="btnMoreFilters">⚙ Filtros</button>
-  <button class="filter-btn" id="btnSelectFolder" title="Seleccionar carpeta local de PDFs">📁 PDFs locales</button>
 </div>
 
 <div class="section-title" id="resultsLabel">Cargando...</div>
