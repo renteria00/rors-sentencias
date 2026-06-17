@@ -853,7 +853,7 @@
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
       <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span><br><span id="lastUpdateTime" style="font-size:10px;opacity:0.7">—</span></div>
       <div style="display:flex;gap:6px;align-items:center">
-      <button onclick="showView('consult')" style="font-size:11px;padding:5px 14px;border-radius:8px;border:1.5px solid var(--gold);background:rgba(201,168,76,0.15);color:var(--gold);cursor:pointer;font-weight:700;white-space:nowrap;letter-spacing:0.5px">CONSULTA</button>
+      <button onclick="showView('consult')" style="font-size:11px;padding:5px 14px;border-radius:8px;border:none;background:var(--gold);color:#111;cursor:pointer;font-weight:800;white-space:nowrap;letter-spacing:0.5px">CONSULTA</button>
       <button id="btnSelectFolder" title="Seleccionar carpeta local de PDFs" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.1);color:var(--gold);cursor:pointer;white-space:nowrap">📁 PDFs</button>
       <button class="stats-icon-btn" id="btnStatsHeader">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
@@ -2257,86 +2257,4 @@ function renderHistorial() {
           <div style="font-size:10px;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px">${c.fecha} &bull; ${c.resultados.length} resultado${c.resultados.length !== 1 ? 's' : ''}</div>
           <div style="font-size:13px;color:var(--gold);font-weight:600;line-height:1.5">${escapeHtml(c.descripcion)}</div>
         </div>
-        <button onclick="borrarConsulta(${c.id})" style="background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;line-height:1" title="Eliminar">✕</button>
-      </div>`;
-
-    if (c.resultados.length > 0) {
-      html += `<div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:900px">
-          <thead>
-            <tr style="background:rgba(52,152,219,0.06);border-bottom:1px solid rgba(52,152,219,0.2)">
-              <th style="width:3px;padding:0"></th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Descripción de Consulta</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Relevancia</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tipo</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tema Sugerido</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Expediente</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fecha</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fallo</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tribunal</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Circuito</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Autoridad Responsable</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Artículos Clave</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Resumen</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Por qué aplica</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Archivo</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Editor</th>
-              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:center">PDF</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${c.resultados.map(r => {
-              const cls = getFalloClass(r.sentido_fallo);
-              const isAlta = r.relevancia === 'Alta';
-              const articulos = (r.articulos_clave || '').split('\n').filter(Boolean)
-                .map(a => `<span class="art-tag">${a.trim()}</span>`).join('');
-              return `<tr style="background:rgba(52,152,219,0.02);border-bottom:1px solid rgba(52,152,219,0.06);vertical-align:top">
-                <td style="width:3px;padding:0"><div style="width:3px;min-height:40px;border-radius:2px;background:${isAlta ? '#3498DB' : '#888'}"></div></td>
-                <td class="td-resumen" style="padding:10px;min-width:200px;max-width:260px;text-align:justify;font-size:11px;color:var(--gray)">
-                  <div class="resumen-text">${escapeHtml(c.descripcion)}</div>
-                  <button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button>
-                </td>
-                <td style="padding:10px;white-space:nowrap">
-                  <span class="relevancia-badge ${isAlta ? 'relevancia-alta' : 'relevancia-media'}">${r.relevancia}</span>
-                </td>
-                <td class="td-tipo" style="padding:10px">${r.tipo_asunto || '—'}</td>
-                <td class="td-tema" style="padding:10px">${r.tema_sugerido || '—'}</td>
-                <td class="td-exp" style="padding:10px">${r.numero_expediente || '—'}</td>
-                <td class="td-fecha" style="padding:10px">${r.fecha_publicacion || '—'}</td>
-                <td style="padding:10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${r.sentido_fallo || ''}</span></td>
-                <td class="td-tribunal" style="padding:10px">${r.tribunal || '—'}</td>
-                <td style="padding:10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${r.circuito || '—'}</td>
-                <td class="td-partes" style="padding:10px">${getAutoridad(r.partes)}</td>
-                <td class="td-articulos" style="padding:10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${r.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
-                <td class="td-resumen" style="padding:10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
-                  <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
-                  ${r.razon}
-                </td>
-                <td class="td-editor" style="padding:10px">${r.nombre_archivo || '—'}</td>
-                <td class="td-editor" style="padding:10px">${r.editor || '—'}</td>
-                <td style="padding:10px;text-align:center;white-space:nowrap">
-                  ${r.url_drive ? `<a href="${r.url_drive}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none">📄 Ver</a>` : '<span style="color:var(--gray)">—</span>'}
-                </td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>`;
-    }
-    html += `</div>`;
-  });
-
-  el.innerHTML = html;
-}
-
-// SERVICE WORKER
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
-}
-
-// INIT
-checkAuth();
-</script>
-</body>
-</html>
+        <button onclick="borrarConsulta(${c.id})" style="background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;li
