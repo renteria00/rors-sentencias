@@ -348,14 +348,29 @@
     color: var(--gold);
     font-weight: 600;
     font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     text-transform: uppercase;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 110px;
+    min-width: 80px;
+  }
+
+  .td-tema {
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--gray-light);
+    white-space: normal;
+    word-break: break-word;
+    max-width: 120px;
+    min-width: 90px;
   }
 
   .td-exp {
-    font-weight: 700;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: var(--white);
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
   }
 
@@ -438,8 +453,10 @@
   .star-btn:hover { border-color: var(--gold-light); }
 
   /* REVISADA */
-  tr.revisada td { opacity: 0.35; }
-  tr.revisada { background: rgba(46,204,113,0.03); }
+  tr.revisada td { opacity: 0.5; }
+  tr.revisada { background: rgba(52,73,94,0.55); border-left: 3px solid #5D6D7E; }
+  tr.revisada .td-tipo { color: #7F8C8D; }
+  tr.revisada .td-exp { color: #95A5A6; }
 
   .check-btn {
     width: 24px; height: 24px;
@@ -834,7 +851,7 @@
       </div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span></div>
+      <div class="update-badge">Actualizado<br><span id="lastUpdate">—</span><br><span id="lastUpdateTime" style="font-size:10px;opacity:0.7">—</span></div>
       <button class="stats-icon-btn" id="btnStatsHeader">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
         Estadísticas
@@ -876,15 +893,16 @@
       <tr>
         <th style="width:3px;padding:0"></th>
         <th class="sortable" data-sort="tipo_asunto">Tipo<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-sort="tema_sugerido">Tema Sugerido<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="numero_expediente">Expediente<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="fecha_publicacion">Fecha<span class="sort-ind">↓</span></th>
         <th class="sortable" data-sort="sentido_fallo">Fallo<span class="sort-ind">↕</span></th>
-        <th style="text-align:center">Tema</th>
         <th class="sortable" data-sort="tribunal">Tribunal<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="circuito">Circuito<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="partes">Autoridad Responsable<span class="sort-ind">↕</span></th>
         <th>Artículos Clave</th>
         <th>Resumen</th>
+        <th style="text-align:center">Tema</th>
         <th class="sortable" data-sort="nombre_archivo">Archivo<span class="sort-ind">↕</span></th>
         <th class="sortable" data-sort="editor">Editor<span class="sort-ind">↕</span></th>
         <th style="text-align:center">PDF</th>
@@ -1149,6 +1167,8 @@ async function loadData() {
     if (allData.length > 0) {
       const dates = allData.map(d => d.fecha_publicacion).filter(Boolean).sort();
       document.getElementById('lastUpdate').textContent = dates[dates.length - 1] || '—';
+      const now = new Date();
+      document.getElementById('lastUpdateTime').textContent = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
     }
   } catch(e) {
     allData = [];
@@ -1304,15 +1324,16 @@ function render() {
     return `<tr class="${esRevisada ? 'revisada' : ''} ${esEstelar ? 'estelar' : ''}">
       <td class="td-left-bar"><div class="${cls}"></div></td>
       <td class="td-tipo">${d.tipo_asunto || '—'}</td>
+      <td class="td-tema">${d.tema_sugerido || '—'}</td>
       <td class="td-exp">${d.numero_expediente || '—'}</td>
       <td class="td-fecha">${d.fecha_publicacion || '—'}</td>
       <td><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
-      <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
       <td class="td-tribunal">${d.tribunal || '—'}</td>
       <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
       <td class="td-partes">${getAutoridad(d.partes)}</td>
       <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
       <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+      <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
       <td class="td-editor">${d.editor || '—'}</td>
       <td style="text-align:center;white-space:nowrap">
@@ -1382,6 +1403,7 @@ function renderEstelares() {
           <tr style="background:rgba(201,168,76,0.12);border-bottom:2px solid var(--gold)">
             <th style="width:3px;padding:0"></th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tipo</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tema Sugerido</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Expediente</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fecha</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
@@ -1405,6 +1427,7 @@ function renderEstelares() {
             return `<tr style="background:rgba(201,168,76,0.04);border-bottom:1px solid rgba(201,168,76,0.1);vertical-align:top">
               <td style="width:3px;padding:0"><div class="${cls}" style="width:3px;min-height:40px;border-radius:2px;background:var(--${cls === 'concede' ? 'concede' : cls === 'niega' ? 'niega' : cls === 'sobresee' ? 'sobresee' : 'other'})"></div></td>
               <td class="td-tipo" style="padding:12px 10px">${d.tipo_asunto || '—'}</td>
+              <td class="td-tema" style="padding:12px 10px">${d.tema_sugerido || '—'}</td>
               <td class="td-exp" style="padding:12px 10px">${d.numero_expediente || '—'}</td>
               <td class="td-fecha" style="padding:12px 10px">${d.fecha_publicacion || '—'}</td>
               <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabel}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
@@ -1724,6 +1747,7 @@ function renderTemas() {
             <tr style="background:rgba(201,168,76,0.08);border-bottom:2px solid var(--gold)">
               <th style="width:3px;padding:0"></th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tipo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tema Sugerido</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Expediente</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fecha</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fallo</th>
@@ -1746,6 +1770,7 @@ function renderTemas() {
               return `<tr style="border-bottom:1px solid rgba(201,168,76,0.1);vertical-align:top">
                 <td style="width:3px;padding:0"><div style="width:3px;min-height:40px;border-radius:2px;background:var(--${cls==='concede'?'concede':cls==='niega'?'niega':cls==='sobresee'?'sobresee':'other'})"></div></td>
                 <td class="td-tipo" style="padding:10px">${d.tipo_asunto || '—'}</td>
+                <td class="td-tema" style="padding:10px">${d.tema_sugerido || '—'}</td>
                 <td class="td-exp" style="padding:10px">${d.numero_expediente || '—'}</td>
                 <td class="td-fecha" style="padding:10px">${d.fecha_publicacion || '—'}</td>
                 <td style="padding:10px"><span class="fallo-badge ${cls}">${fl}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
@@ -1947,6 +1972,7 @@ ${JSON.stringify(candidatas)}`;
               <th style="width:3px;padding:0"></th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Relevancia</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tipo</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Tema Sugerido</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Expediente</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fecha</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Fallo</th>
@@ -1975,6 +2001,7 @@ ${JSON.stringify(candidatas)}`;
                   <span class="relevancia-badge ${isAlta ? 'relevancia-alta' : 'relevancia-media'}">${m.relevancia}</span>
                 </td>
                 <td class="td-tipo" style="padding:12px 10px">${d.tipo_asunto || '—'}</td>
+                <td class="td-tema" style="padding:12px 10px">${d.tema_sugerido || '—'}</td>
                 <td class="td-exp" style="padding:12px 10px">${d.numero_expediente || '—'}</td>
                 <td class="td-fecha" style="padding:12px 10px">${d.fecha_publicacion || '—'}</td>
                 <td style="padding:12px 10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${d.sentido_fallo || ''}</span></td>
@@ -2092,6 +2119,7 @@ function renderHistorial() {
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Descripción de Consulta</th>
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Relevancia</th>
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tipo</th>
+              <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Tema Sugerido</th>
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Expediente</th>
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fecha</th>
               <th style="padding:8px 10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;text-align:left">Fallo</th>
@@ -2122,6 +2150,7 @@ function renderHistorial() {
                   <span class="relevancia-badge ${isAlta ? 'relevancia-alta' : 'relevancia-media'}">${r.relevancia}</span>
                 </td>
                 <td class="td-tipo" style="padding:10px">${r.tipo_asunto || '—'}</td>
+                <td class="td-tema" style="padding:10px">${r.tema_sugerido || '—'}</td>
                 <td class="td-exp" style="padding:10px">${r.numero_expediente || '—'}</td>
                 <td class="td-fecha" style="padding:10px">${r.fecha_publicacion || '—'}</td>
                 <td style="padding:10px"><span class="fallo-badge ${cls}">${falloLabels[cls]}</span><br><span style="font-size:10px;color:var(--gray);margin-top:4px;display:block">${r.sentido_fallo || ''}</span></td>
