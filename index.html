@@ -777,6 +777,13 @@
     text-align: center;
     transition: all 0.2s;
     cursor: pointer;
+    resize: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    display: block;
+    box-sizing: border-box;
   }
   .tema-input::placeholder { color: rgba(201,168,76,0.35); font-weight: 400; text-transform: none; letter-spacing: 0; font-style: italic; }
   .tema-input:focus { border-color: var(--gold); background: rgba(201,168,76,0.22); border-style: solid; }
@@ -1374,7 +1381,7 @@ function render() {
       <td class="td-partes">${getAutoridad(d.partes)}</td>
       <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
       <td class="td-resumen"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
-      <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
+      <td style="text-align:center"><textarea class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" placeholder="+ tema" onblur="saveTema(this)" oninput="autoResizeTema(this)" rows="1">${temaVal}</textarea></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
       <td class="td-editor">${d.editor || '—'}</td>
       <td style="text-align:center;white-space:nowrap">${pdfButton(d)}</td>
@@ -1389,6 +1396,8 @@ function render() {
       </td>
     </tr>`;
   }).join('');
+  // Auto-resize todos los textareas de tema
+  document.querySelectorAll('.tema-input').forEach(autoResizeTema);
 }
 
 // ESTELARES
@@ -1430,6 +1439,7 @@ function toggleEstelar(btn) {
   }
   localStorage.setItem('rors_estelares', JSON.stringify([...estelares]));
   syncToCloud();
+  render();
 }
 
 function renderEstelares() {
@@ -1854,6 +1864,7 @@ function saveTema(input) {
   const id = input.dataset.id;
   const val = input.value.trim().toUpperCase();
   input.value = val;
+  autoResizeTema(input);
   if (val) {
     temas[id] = val;
     input.classList.add('captured');
@@ -1863,6 +1874,11 @@ function saveTema(input) {
   }
   localStorage.setItem('rors_temas', JSON.stringify(temas));
   syncToCloud();
+}
+
+function autoResizeTema(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
 }
 
 // RENDER TEMAS
