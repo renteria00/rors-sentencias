@@ -1472,6 +1472,7 @@ function renderEstelares() {
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Autoridad Responsable</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
+            <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">Tema</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Archivo</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Editor</th>
             <th style="padding:10px;font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">PDF</th>
@@ -1496,6 +1497,7 @@ function renderEstelares() {
               <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
               <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
               <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+              <td style="padding:12px 10px;text-align:center"><textarea class="tema-input ${(temas[d.nombre_archivo]||'') ? 'captured' : ''}" data-id="${d.nombre_archivo}" placeholder="+ tema" onblur="saveTema(this)" oninput="autoResizeTema(this)" rows="1">${temas[d.nombre_archivo]||''}</textarea></td>
               <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
               <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
               <td style="padding:12px 10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
@@ -1507,6 +1509,7 @@ function renderEstelares() {
         </tbody>
       </table>
     </div>`;
+  el.querySelectorAll('.tema-input').forEach(autoResizeTema);
 }
 
 function toggleSecundaria(id) {
@@ -1539,6 +1542,7 @@ function renderSecundarias() {
         <thead><tr>
           <th style="width:3px;padding:0"></th>
           <th>Tipo</th><th>Tema Sugerido</th><th>Expediente</th><th>Fecha</th><th>Fallo</th><th>Resumen</th>
+          <th style="text-align:center">Tema</th>
           <th style="text-align:center">Restaurar</th>
         </tr></thead>
         <tbody>
@@ -1550,6 +1554,7 @@ function renderSecundarias() {
             <td style="font-size:11px;white-space:nowrap">${d.fecha_publicacion || '—'}</td>
             <td><span class="fallo-badge fallo-${getFalloClass(d.sentido_fallo)}">${d.sentido_fallo || '—'}</span></td>
             <td class="td-resumen"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+            <td style="text-align:center"><textarea class="tema-input ${(temas[d.nombre_archivo]||'') ? 'captured' : ''}" data-id="${d.nombre_archivo}" placeholder="+ tema" onblur="saveTema(this)" oninput="autoResizeTema(this)" rows="1">${temas[d.nombre_archivo]||''}</textarea></td>
             <td style="text-align:center">
               <button onclick="quitarSecundaria('${d.nombre_archivo}')" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #E74C3C;background:rgba(231,76,60,0.1);color:#E74C3C;cursor:pointer">Restaurar</button>
             </td>
@@ -1557,6 +1562,7 @@ function renderSecundarias() {
         </tbody>
       </table>
     </div>`;
+  el.querySelectorAll('.tema-input').forEach(autoResizeTema);
 }
 
 function quitarSecundaria(id) {
@@ -1626,8 +1632,8 @@ document.getElementById('circuitoSelect').addEventListener('change', e => {
 function pdfButton(d) {
   const style = `display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:5px 10px;color:var(--gold);font-size:11px;font-weight:700;text-decoration:none;cursor:pointer`;
   if (d.url_drive) return `<a href="${d.url_drive}" target="_blank" style="${style}">📄 Ver</a>`;
-  if (localFolderHandle) return `<button onclick="openLocalPdf('${d.nombre_archivo}')" style="${style};background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3)">📄 Ver</button>`;
-  return '<span style="color:var(--gray)">—</span>';
+  if (localFolderHandle) return `<button onclick="openLocalPdf('${d.nombre_archivo}')" style="${style}">📄 Ver</button>`;
+  return `<button onclick="selectLocalFolder()" style="${style};opacity:0.6" title="Conectar carpeta de PDFs">📁 Carpeta</button>`;
 }
 
 async function findFileInDir(dirHandle, filename) {
@@ -1665,6 +1671,10 @@ document.getElementById('btnSelectFolder').addEventListener('click', async () =>
     render();
   } catch(e) { /* cancelado */ }
 });
+
+function selectLocalFolder() {
+  document.getElementById('btnSelectFolder').click();
+}
 
 // TEMA SUGERIDO SELECT
 document.getElementById('temaSugeridoSelect').addEventListener('change', e => {
@@ -2158,6 +2168,7 @@ ${JSON.stringify(candidatas)}`;
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Autoridad Responsable</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Artículos Clave</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Resumen</th>
+              <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;text-align:center;white-space:nowrap">Tema</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Por qué aplica</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Archivo</th>
               <th style="padding:10px;font-size:10px;font-weight:700;color:#3498DB;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap">Editor</th>
@@ -2187,6 +2198,7 @@ ${JSON.stringify(candidatas)}`;
                 <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
                 <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
                 <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td style="padding:12px 10px;text-align:center"><textarea class="tema-input ${(temas[d.nombre_archivo]||'') ? 'captured' : ''}" data-id="${d.nombre_archivo}" placeholder="+ tema" onblur="saveTema(this)" oninput="autoResizeTema(this)" rows="1">${temas[d.nombre_archivo]||''}</textarea></td>
                 <td class="td-resumen" style="padding:12px 10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
                   <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
                   ${m.razon}
@@ -2199,6 +2211,9 @@ ${JSON.stringify(candidatas)}`;
           </tbody>
         </table>
       </div>`;
+
+    // Auto-resize temas en resultados
+    results.querySelectorAll('.tema-input').forEach(autoResizeTema);
 
     // Guardar en historial
     saveConsulta(caso, matches);
