@@ -412,7 +412,7 @@
   @media (max-width: 768px) {
     .td-resumen { min-width: 280px; max-width: 320px; }
   }
-  .resumen-text { display: -webkit-box; -webkit-line-clamp: 20; -webkit-box-orient: vertical; overflow: hidden; }
+  .resumen-text { display: -webkit-box; -webkit-line-clamp: 20; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
   .resumen-text.expanded { display: block; -webkit-line-clamp: unset; overflow: visible; }
   .resumen-toggle { color: var(--gold); font-size: 11px; cursor: pointer; margin-top: 4px; display: inline-block; background: none; border: none; padding: 0; }
 
@@ -1373,7 +1373,7 @@ function render() {
       <td style="font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
       <td class="td-partes">${getAutoridad(d.partes)}</td>
       <td class="td-articulos">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-      <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+      <td class="td-resumen"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
       <td style="text-align:center"><input type="text" class="tema-input ${temaVal ? 'captured' : ''}" data-id="${d.nombre_archivo}" value="${temaVal}" placeholder="+ tema" onblur="saveTema(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
       <td class="td-editor">${d.nombre_archivo || '—'}</td>
       <td class="td-editor">${d.editor || '—'}</td>
@@ -1400,6 +1400,14 @@ function getAutoridad(partes) {
   const idx2 = lower.indexOf(' / ');
   if (idx2 !== -1) return partes.substring(idx2 + 3).trim();
   return partes;
+}
+
+function fmtResumen(t) {
+  if (!t || t === '—') return '—';
+  return t
+    .replace(/(LA RESPONSABLE:)/g, '<strong style="color:#e8b84b">$1</strong>')
+    .replace(/(EL QUEJOSO:)/g, '<strong style="color:#e8b84b">$1</strong>')
+    .replace(/(EL COLEGIADO:)/g, '<strong style="color:#e8b84b">$1</strong>');
 }
 
 function toggleResumen(btn) {
@@ -1477,7 +1485,7 @@ function renderEstelares() {
               <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
               <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
               <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-              <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+              <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
               <td class="td-editor" style="padding:12px 10px">${d.nombre_archivo || '—'}</td>
               <td class="td-editor" style="padding:12px 10px">${d.editor || '—'}</td>
               <td style="padding:12px 10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
@@ -1531,7 +1539,7 @@ function renderSecundarias() {
             <td class="td-exp">${d.numero_expediente || '—'}</td>
             <td style="font-size:11px;white-space:nowrap">${d.fecha_publicacion || '—'}</td>
             <td><span class="fallo-badge fallo-${getFalloClass(d.sentido_fallo)}">${d.sentido_fallo || '—'}</span></td>
-            <td class="td-resumen"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+            <td class="td-resumen"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
             <td style="text-align:center">
               <button onclick="quitarSecundaria('${d.nombre_archivo}')" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #E74C3C;background:rgba(231,76,60,0.1);color:#E74C3C;cursor:pointer">Restaurar</button>
             </td>
@@ -1931,7 +1939,7 @@ function renderTemas() {
                 <td style="padding:10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
                 <td class="td-partes" style="padding:10px">${getAutoridad(d.partes)}</td>
                 <td class="td-articulos" style="padding:10px">${arts || '<span style="color:var(--gray)">—</span>'}</td>
-                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td class="td-editor" style="padding:10px">${d.nombre_archivo || '—'}</td>
                 <td class="td-editor" style="padding:10px">${d.editor || '—'}</td>
                 <td style="padding:10px;text-align:center;white-space:nowrap">${pdfButton(d)}</td>
@@ -2162,7 +2170,7 @@ ${JSON.stringify(candidatas)}`;
                 <td style="padding:12px 10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${d.circuito || '—'}</td>
                 <td class="td-partes" style="padding:12px 10px">${getAutoridad(d.partes)}</td>
                 <td class="td-articulos" style="padding:12px 10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-                <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${d.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td class="td-resumen" style="padding:12px 10px"><div class="resumen-text">${fmtResumen(d.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td class="td-resumen" style="padding:12px 10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
                   <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
                   ${m.razon}
@@ -2308,7 +2316,7 @@ function renderHistorial() {
                 <td style="padding:10px;font-size:11px;color:var(--gray-light);white-space:nowrap">${r.circuito || '—'}</td>
                 <td class="td-partes" style="padding:10px">${getAutoridad(r.partes)}</td>
                 <td class="td-articulos" style="padding:10px">${articulos || '<span style="color:var(--gray)">—</span>'}</td>
-                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${r.resumen || '—'}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
+                <td class="td-resumen" style="padding:10px"><div class="resumen-text">${fmtResumen(r.resumen || '—')}</div><button class="resumen-toggle" onclick="toggleResumen(this)">Ver más ▾</button></td>
                 <td class="td-resumen" style="padding:10px;text-align:justify;border-left:1px solid rgba(52,152,219,0.15)">
                   <span style="color:#3498DB;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Por qué aplica</span>
                   ${r.razon}
